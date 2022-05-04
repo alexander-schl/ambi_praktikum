@@ -79,28 +79,29 @@ def naive_string_matcher(t, p):
             print("Pattern occurs with shift", s)
 
     return shifts
-#144697
-#1000000009
 
-def rabin_karp_matcher(T, P, d=100, q=113):
+
+def rabin_karp_matcher(T, P, d=144697, q=1000000009):
     n = len(T)
     m = len(P)
-    h = d ^ (m - 1) % q
+    h = pow(d, m - 1) % q
     p = 0
-    t0 = 0
+    t = 0
 
     for i in range(0, m):
         p = (d * p + ord(u"{}".format(P[i]))) % q
-        t0 = (d * t0 + ord(u"{}".format(T[i]))) % q
+        t = (d * t + ord(u"{}".format(T[i]))) % q
 
     for s in range(0, n - m + 1):
-        if p == t0:
+        if p == t:
             if P[0:m] == T[s: s + m]:
                 print("Pattern occurs with shift", s)
 
         if s < (n - m):
-            # t0 = (ord(u"{}".format(T[s + m])) + d * (t0 - ord(u"{}".format(T[s+1])) * h)) % q
-            t0 = (d * (t0 - ord(u"{}".format(T[s+1])) * h) + ord(u"{}".format(T[s + m]))) % q
+            t = (ord(u"{}".format(T[s + m])) + d * (t - ord(u"{}".format(T[s])) * h)) % q
+
+            if t < 0:
+                t = t + q
 
 
 def knuth():
@@ -112,6 +113,5 @@ def boyer():
 
 
 if __name__ == "__main__":
-    # naive_string_matcher("gdjensjen", "jen")
     rabin_karp_matcher("jengdjensjen", "jen")
     # menu()
