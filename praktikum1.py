@@ -104,28 +104,21 @@ def rabin_karp_matcher(T, P, d=144697, q=1000000009):
                 t = t + q
 
 
-def knuth_morris_pratt(T, P, v= []):
-    print(P[1])
+def knuth_morris_pratt(T, P):
     n = len(T)
     m = len(P)
-    k = 0
-    v.append(0)
-    for i in range(1, m):
-        while k > 0 and P[k] != P[i]:
-            k = v[k]
-        if P[k] == P[i]:
-            k += 1
-        v.append(k)
-    print(v)
-    t = 0
-    for a in range(0, n):
-        while t > 0 and P[t] != T[a]:
-            t = v[t]
-        if P[t] == T[a]:
-            t = t+1
-        if t == m:
-            print("pattern at   "+a-m)
-            t = t[v]
+    pi = compute_prefix(P)
+    q = 0
+
+    for i in range(n):
+        while q > 0 and P[q] != T[i]:
+            q = pi[q]
+        if P[q] == T[i]:
+            q = q + 1
+
+        if q == m:
+            print("Pattern occurs with shift", i - m + 1)
+            q = pi[q-1]
 
 
 def compute_prefix(P):
@@ -154,14 +147,14 @@ def boyer_moore_matcher(T, P, sigma):
     s = o
 
     while s <= n - m:
-        j = m
+        j = m - 1
         while j > o and P[j] == T[s + j]:
             j = j - 1
-            if j == o:
-                print("Pattern occurs with shift ", s)
-                s = s + gamma[o]
-            else:
-                s = s + max(gamma[j], j - lambd[T[s + j]])
+        if j == o:
+            print("Pattern occurs with shift ", s)
+            s = s + gamma[o]
+        else:
+            s = s + max(gamma[j], j - lambd[ord(T[s + j])])
 
 
 def compute_last_occurrence(P, m, sigma):
@@ -170,32 +163,35 @@ def compute_last_occurrence(P, m, sigma):
     for char in sigma:
         lambd.append(0)
 
+    # add numeric value of every char to a list
     for j in range(m):
-        lambd[P[j]] = j
+        lambd[ord(P[j])] = j
 
     return lambd
 
 
 def compute_good_suffix(P, m):
     pi = compute_prefix(P)
-    P1 = reversed(P)
+    P1 = P[::-1]
     pi1 = compute_prefix(P1)
     gamma = [0] * m
 
     for j in range(m):
-        gamma[j] = m - pi[m]
+        gamma[j] = m - pi[m - 1]
     for l in range(m):
         j = m - pi1[l]
-        if gamma[j] > l - pi1[l]:
-            gamma[j] = l - pi1[l]
+        if gamma[j - 1] > (l - pi1[l]):
+            gamma[j - 1] = l - pi1[l]
 
     return gamma
 
 
 if __name__ == "__main__":
-    knuth_morris_pratt("abcabababaababababca", "ababababca")
+    print("Rabin Karp:")
     rabin_karp_matcher("jengdjensjen", "jen")
-    unicode_char_list = [chr(x) for x in range(255)]
-    print(unicode_char_list)
-    boyer_moore_matcher("jengdjensjen", "jen", unicode_char_list)
+    print("KMP:")
+    knuth_morris_pratt("jengdjensjen", "jen")
+    print("Booyer Moore:")
+    char_list = [chr(x) for x in range(144697)]
+    boyer_moore_matcher("jengdjensjen", "jen", char_list)
     # menu()
