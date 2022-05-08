@@ -134,14 +134,14 @@ def boyer_moore_matcher(T, P, sigma):
     s = o
 
     while s <= n - m:
-        j = m
+        j = m - 1
         while j > o and P[j] == T[s + j]:
             j = j - 1
-            if j == o:
-                print("Pattern occurs with shift ", s)
-                s = s + gamma[o]
-            else:
-                s = s + max(gamma[j], j - lambd[T[s + j]])
+        if j == o:
+            print("Pattern occurs with shift ", s)
+            s = s + gamma[o]
+        else:
+            s = s + max(gamma[j], j - lambd[ord(T[s + j])])
 
 
 def compute_last_occurrence(P, m, sigma):
@@ -150,31 +150,32 @@ def compute_last_occurrence(P, m, sigma):
     for char in sigma:
         lambd.append(0)
 
+    # add numeric value of every char to a list
     for j in range(m):
-        lambd[P[j]] = j
+        lambd[ord(P[j])] = j
 
     return lambd
 
 
 def compute_good_suffix(P, m):
     pi = compute_prefix(P)
-    P1 = reversed(P)
+    P1 = P[::-1]
     pi1 = compute_prefix(P1)
     gamma = [0] * m
 
     for j in range(m):
-        gamma[j] = m - pi[m]
+        gamma[j] = m - pi[m - 1]
     for l in range(m):
         j = m - pi1[l]
-        if gamma[j] > l - pi1[l]:
-            gamma[j] = l - pi1[l]
+        if gamma[j - 1] > (l - pi1[l]):
+            gamma[j - 1] = l - pi1[l]
 
     return gamma
 
 
 if __name__ == "__main__":
-    rabin_karp_matcher("jengdjensjen", "jen")
-    unicode_char_list = [chr(x) for x in range(255)]
-    print(unicode_char_list)
-    boyer_moore_matcher("jengdjensjen", "jen", unicode_char_list)
+    # rabin_karp_matcher("jengdjensjen", "jen")
+
+    char_list = [chr(x) for x in range(144697)]
+    boyer_moore_matcher("jengdjensjen", "jen", char_list)
     # menu()
