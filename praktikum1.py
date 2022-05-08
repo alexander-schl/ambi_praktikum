@@ -29,7 +29,7 @@ def menu():
             if number == 2:
                 rabin_karp_matcher()
             if number == 3:
-                knuth()
+                knuth_morris_pratt()
             if number == 4:
                 boyer()
             if number == 5:
@@ -104,8 +104,30 @@ def rabin_karp_matcher(T, P, d=144697, q=1000000009):
                 t = t + q
 
 
-def knuth():
-    pass
+def knuth_morris_pratt(T, P, v= []):
+    print(P[1])
+    n = len(T)
+    m = len(P)
+    k = 0
+    v.append(0)
+    for i in range(1, m):
+        while k > 0 and P[k] != P[i]:
+            k = v[k]
+        if P[k] == P[i]:
+            k += 1
+        v.append(k)
+    print(v)
+    t = 0
+    for a in range(0, n):
+        while t > 0 and P[t] != T[a]:
+            t = v[t]
+        if P[t] == T[a]:
+            t = t+1
+        if t == m:
+            print("pattern at   "+a-m)
+            t = t[v]
+
+
 
 
 def boyer():
@@ -113,5 +135,6 @@ def boyer():
 
 
 if __name__ == "__main__":
-    rabin_karp_matcher("jengdjensjen", "jen")
+    #rabin_karp_matcher("jengdjensjen", "jen")
+    knuth_morris_pratt("abcabababaababababca","ababababca")
     # menu()
