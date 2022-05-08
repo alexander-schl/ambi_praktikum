@@ -29,7 +29,7 @@ def menu():
             if number == 2:
                 rabin_karp_matcher()
             if number == 3:
-                knuth()
+                knuth_morris_pratt()
             if number == 4:
                 boyer_moore_matcher()
             if number == 5:
@@ -104,8 +104,21 @@ def rabin_karp_matcher(T, P, d=144697, q=1000000009):
                 t = t + q
 
 
-def knuth():
-    pass
+def knuth_morris_pratt(T, P):
+    n = len(T)
+    m = len(P)
+    pi = compute_prefix(P)
+    q = 0
+
+    for i in range(n):
+        while q > 0 and P[q] != T[i]:
+            q = pi[q]
+        if P[q] == T[i]:
+            q = q + 1
+
+        if q == m:
+            print("Pattern occurs with shift", i - m + 1)
+            q = pi[q-1]
 
 
 def compute_prefix(P):
@@ -174,8 +187,11 @@ def compute_good_suffix(P, m):
 
 
 if __name__ == "__main__":
-    # rabin_karp_matcher("jengdjensjen", "jen")
-
+    print("Rabin Karp:")
+    rabin_karp_matcher("jengdjensjen", "jen")
+    print("KMP:")
+    knuth_morris_pratt("jengdjensjen", "jen")
+    print("Booyer Moore:")
     char_list = [chr(x) for x in range(144697)]
     boyer_moore_matcher("jengdjensjen", "jen", char_list)
     # menu()
