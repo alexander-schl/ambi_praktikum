@@ -87,14 +87,14 @@ def naive_string_matcher(t, p):
     n = len(t)
     m = len(p)
     steps = 0
-
-    shifts = []
+    number_of_occurrences = 0
 
     for s in range(0, n - m + 1):
         steps += 1
         if p == t[s:s + m]:
-            shifts.append(s)
             print("Pattern occurs with shift", s)
+            number_of_occurrences += 1
+    print(f"Pattern occurs {number_of_occurrences} times.")
     return steps
 
 
@@ -105,15 +105,28 @@ def rabin_karp_matcher(T, P, d=144697, q=1000000009):
     p = 0
     t = 0
     steps = 0
+    number_of_occurrences = 0
+
     for i in range(0, m):
         p = (d * p + ord(u"{}".format(P[i]))) % q
         t = (d * t + ord(u"{}".format(T[i]))) % q
 
     for s in range(0, n - m + 1):
+        steps += 1
         if p == t:
-            if P[0:m] == T[s: s + m]:
+            #if P[0:m] == T[s: s + m]:
+            # check character for character
+            for i in range(m):
+                steps += 1
+                if T[s + i] != P[i]:
+                    break
+                else:
+                    i += 1
 
+            if i == m:
                 print("Pattern occurs with shift", s)
+                number_of_occurrences += 1
+
 
         if s < (n - m):
             t = (ord(u"{}".format(T[s + m])) + d * (t - ord(u"{}".format(T[s])) * h)) % q
@@ -121,13 +134,17 @@ def rabin_karp_matcher(T, P, d=144697, q=1000000009):
             if t < 0:
                 t = t + q
 
+    print(f"Pattern occurs {number_of_occurrences} times.")
     return steps
+
+
 def knuth_morris_pratt(T, P):
     steps = 0
     n = len(T)
     m = len(P)
     pi = compute_prefix(P)
     q = 0
+    number_of_occurrences = 0
 
     for i in range(n):
         steps += 1
@@ -138,7 +155,10 @@ def knuth_morris_pratt(T, P):
 
         if q == m:
             print("Pattern occurs with shift", i - m + 1)
+            number_of_occurrences += 1
             q = pi[q-1]
+
+    print(f"Pattern occurs {number_of_occurrences} times.")
     return steps
 
 def compute_prefix(P):
@@ -165,6 +185,7 @@ def boyer_moore_matcher(T, P, sigma):
     lambd = compute_last_occurrence(P, m, sigma)
     gamma = compute_good_suffix(P, m)
     s = 0
+    number_of_occurrences = 0
 
     while s <= n - m:
         j = m - 1
@@ -174,9 +195,12 @@ def boyer_moore_matcher(T, P, sigma):
         steps += 1
         if j < 0:
             print("Pattern occurs with shift ", s)
+            number_of_occurrences += 1
             s = s + gamma[0]
         else:
             s = s + max(gamma[j], j - lambd[ord(T[s + j])])
+
+    print(f"Pattern occurs {number_of_occurrences} times.")
     return steps
 
 def compute_last_occurrence(P, m, sigma):
