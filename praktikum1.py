@@ -1,4 +1,6 @@
 import time
+import os
+
 def menu():
     print("AMBI Praktikum Aufgabe 1 von Alexander Schleiter & Tim Stadager")
     i = 0
@@ -58,12 +60,14 @@ def menu():
             print("Geben Sie eine Zahl zwischen 1 und 5 ein.")
 
 
-def string_input(data, pattern ):
+def string_input(data, pattern):
     t = " " #text
     p = " " #pattern
     data.replace("\"", "/")
 
-    with open(data, "r", encoding="utf-8") as text:
+    path = os.path.abspath(data)
+
+    with open(path, "r", encoding="utf-8") as text:
         # content = text.read().replace("\n","")
         for i in text:
             if i[0] == ">":
@@ -189,10 +193,9 @@ def boyer_moore_matcher(T, P, sigma):
 
     while s <= n - m:
         j = m - 1
-        steps += 1
         while j >= 0 and P[j] == T[s + j]:
             j = j - 1
-        steps += 1
+            steps += 1
         if j < 0:
             print("Pattern occurs with shift ", s)
             number_of_occurrences += 1
