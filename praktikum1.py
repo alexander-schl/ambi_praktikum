@@ -196,9 +196,9 @@ def compute_last_occurrence(P, m, sigma):
 
 
 def compute_good_suffix(P, m, steps):
-    pi = compute_prefix(P)
+    pi,steps = compute_prefix(P,steps)
     P1 = P[::-1]
-    pi1 = compute_prefix(P1)
+    pi1,steps = compute_prefix(P1, steps)
     gamma = [0] * m
 
     for j in range(m):
