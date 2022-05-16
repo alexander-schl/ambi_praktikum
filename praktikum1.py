@@ -26,30 +26,30 @@ def menu():
             char_list = [chr(x) for x in range(144697)]
             number = int(input())
             if number == 1:
-                start = time.process_time()
+                start = time.time()
                 steps = naive_string_matcher(t, p)
-                end = time.process_time()
-                print("Zeit: {5.3f}s".format(end-start))
+                end = time.time()
+                print("Zeit:", (end-start))
                 print("Anzahl der Verlgeiche:   ", steps)
-            if number == 2:
-                start = time.process_time()
+            elif number == 2:
+                start = time.time()
                 steps = rabin_karp_matcher(t, p,)
-                end = time.process_time()
-                print("Zeit: {5.3f}s".format(end - start))
+                end = time.time()
+                print("Zeit:", (end - start))
                 print("Anzahl der Verlgeiche:   ", steps)
-            if number == 3:
-                start = time.process_time()
-                knuth_morris_pratt(t, p)
-                end = time.process_time()
-                print("Zeit: {5.3f}s".format(end - start))
+            elif number == 3:
+                start = time.time()
+                steps = knuth_morris_pratt(t, p)
+                end = time.time()
+                print("Zeit:", (end - start))
                 print("Anzahl der Verlgeiche:   ", steps)
-            if number == 4:
-                start = time.process_time()
-                boyer_moore_matcher(t, p, char_list)
-                end = time.process_time()
-                print("Zeit: {5.3f}s".format(end - start))
+            elif number == 4:
+                start = time.time()
+                steps = boyer_moore_matcher(t, p, char_list)
+                end = time.time()
+                print("Zeit:", (end - start))
                 print("Anzahl der Verlgeiche:   ", steps)
-            if number == 5:
+            elif number == 5:
                 exit()
             else:
                 print("Die angegebene Zahl liegt nicht zwischen 1 und 5\n"
@@ -70,7 +70,6 @@ def string_input(data, pattern ):
                 pass
             else:
                 t += i  # \n muss noch aus t rausgenommen werden oder nicht?
-        print(t)
     if "\"" in pattern:  # checks if the search_string is a path
         pattern.replace("\"", "/")
         with open(pattern, "r", encoding="utf-8") as text:
@@ -122,7 +121,7 @@ def rabin_karp_matcher(T, P, d=144697, q=1000000009):
             if t < 0:
                 t = t + q
 
-
+    return steps
 def knuth_morris_pratt(T, P):
     steps = 0
     n = len(T)
@@ -220,4 +219,4 @@ if __name__ == "__main__":
     print("Booyer Moore:")
     char_list = [chr(x) for x in range(144697)]
     boyer_moore_matcher("jengdjensjen", "jen", char_list)
-    # menu()
+    menu()
