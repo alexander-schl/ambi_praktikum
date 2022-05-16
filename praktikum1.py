@@ -126,7 +126,7 @@ def knuth_morris_pratt(T, P):
     steps = 0
     n = len(T)
     m = len(P)
-    pi, steps = compute_prefix(P, steps)
+    pi = compute_prefix(P)
     q = 0
 
     for i in range(n):
@@ -141,14 +141,13 @@ def knuth_morris_pratt(T, P):
             q = pi[q-1]
     return steps
 
-def compute_prefix(P, steps):
+def compute_prefix(P):
     m = len(P)
     # initialize list of length m
     pi = [0] * m
     k = 0
 
     for q in range(2, m):
-        steps += 1
         while k > 0 and P[k + 1] != P[q]:
             k = pi[k]
 
@@ -156,7 +155,7 @@ def compute_prefix(P, steps):
             k = k + 1
         pi[q] = k
 
-    return pi,steps
+    return pi
 
 
 def boyer_moore_matcher(T, P, sigma):
@@ -164,7 +163,7 @@ def boyer_moore_matcher(T, P, sigma):
     n = len(T)
     m = len(P)
     lambd = compute_last_occurrence(P, m, sigma)
-    gamma,steps = compute_good_suffix(P, m, steps)
+    gamma = compute_good_suffix(P, m)
     o = 0
     s = o
 
@@ -194,21 +193,20 @@ def compute_last_occurrence(P, m, sigma):
     return lambd
 
 
-def compute_good_suffix(P, m, steps):
-    pi,steps = compute_prefix(P,steps)
+def compute_good_suffix(P, m):
+    pi = compute_prefix(P)
     P1 = P[::-1]
-    pi1,steps = compute_prefix(P1, steps)
+    pi1 = compute_prefix(P1)
     gamma = [0] * m
 
     for j in range(m):
         gamma[j] = m - pi[m - 1]
     for l in range(m):
         j = m - pi1[l]
-        steps += 1
         if gamma[j - 1] > (l - pi1[l]):
             gamma[j - 1] = l - pi1[l]
 
-    return gamma,steps
+    return gamma
 
 
 if __name__ == "__main__":
