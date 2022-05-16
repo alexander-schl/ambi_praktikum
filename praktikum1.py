@@ -164,18 +164,17 @@ def boyer_moore_matcher(T, P, sigma):
     m = len(P)
     lambd = compute_last_occurrence(P, m, sigma)
     gamma = compute_good_suffix(P, m)
-    o = 0
-    s = o
+    s = 0
 
     while s <= n - m:
         j = m - 1
         steps += 1
-        while j > o and P[j] == T[s + j]:
+        while j >= 0 and P[j] == T[s + j]:
             j = j - 1
         steps += 1
-        if j == o:
+        if j < 0:
             print("Pattern occurs with shift ", s)
-            s = s + gamma[o]
+            s = s + gamma[0]
         else:
             s = s + max(gamma[j], j - lambd[ord(T[s + j])])
     return steps
@@ -210,11 +209,11 @@ def compute_good_suffix(P, m):
 
 
 if __name__ == "__main__":
-    print("Rabin Karp:")
-    rabin_karp_matcher("jengdjensjen", "jen")
-    print("KMP:")
-    knuth_morris_pratt("jengdjensjen", "jen")
-    print("Booyer Moore:")
-    char_list = [chr(x) for x in range(144697)]
-    boyer_moore_matcher("jengdjensjen", "jen", char_list)
+    # print("Rabin Karp:")
+    # rabin_karp_matcher("jengdjensjen", "jen")
+    # print("KMP:")
+    # knuth_morris_pratt("jengdjensjen", "jen")
+    # print("Booyer Moore:")
+    # char_list = [chr(x) for x in range(144697)]
+    # boyer_moore_matcher("jengdjensjen", "jen", char_list)
     menu()
