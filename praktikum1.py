@@ -152,8 +152,10 @@ def knuth_morris_pratt(T, P):
 
     for i in range(n):
         steps += 1
+
         while q > 0 and P[q] != T[i]:
-            q = pi[q]
+            q = pi[q-1]
+
         if P[q] == T[i]:
             q = q + 1
 
@@ -168,17 +170,17 @@ def knuth_morris_pratt(T, P):
 def compute_prefix(P):
     m = len(P)
     # initialize list of length m
-    pi = [0] * m
-    k = 0
+    pi = [-1]
+    k = -1
 
-    for q in range(2, m):
-        while k > 0 and P[k + 1] != P[q]:
+    for q in range(0, m):
+        while k >= 0 and P[k] != P[q]:
             k = pi[k]
 
-        if P[k + 1] == P[q]:
-            k = k + 1
-        pi[q] = k
+        k = k + 1
+        pi.append(k)
 
+    pi.pop(0)
     return pi
 
 
@@ -241,6 +243,7 @@ if __name__ == "__main__":
     # print("KMP:")
     # knuth_morris_pratt("jengdjensjen", "jen")
     # print("Booyer Moore:")
-    # char_list = [chr(x) for x in range(144697)]
-    # boyer_moore_matcher("jengdjensjen", "jen", char_list)
+    #char_list = [chr(x) for x in range(144697)]
+    #boyer_moore_matcher("jengdjensjen", "jen", char_list)
+    print(compute_prefix("GGATCC"))
     menu()
