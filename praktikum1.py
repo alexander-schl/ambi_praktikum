@@ -1,16 +1,17 @@
 import time
 import os
 
+
 def menu():
     print("AMBI Praktikum Aufgabe 1 von Alexander Schleiter & Tim Stadager")
     i = 0
     while i == 0:
-        print("Als erstes bitte einen Text als Dateipfad angeben"
+        print("Als erstes bitte einen Text als Dateipfad angeben "
               "und dann den darin zu suchenden Pattern.")
         try:
             pattern = str(input(r"Text:    "))
             search_string = str(input(r"Pattern:  "))
-            t,p = string_input(pattern, search_string)
+            t, p = string_input(pattern, search_string)
         except TypeError:
             print("Das Pattern konnte nicht gefunden werden.")
             continue
@@ -31,11 +32,11 @@ def menu():
                 start = time.time()
                 steps = naive_string_matcher(t, p)
                 end = time.time()
-                print("Zeit:", (end-start))
+                print("Zeit:", (end - start))
                 print("Anzahl der Verlgeiche:   ", steps)
             elif number == 2:
                 start = time.time()
-                steps = rabin_karp_matcher(t, p,)
+                steps = rabin_karp_matcher(t, p, )
                 end = time.time()
                 print("Zeit:", (end - start))
                 print("Anzahl der Verlgeiche:   ", steps)
@@ -61,8 +62,8 @@ def menu():
 
 
 def string_input(data, pattern):
-    t = " " #text
-    p = " " #pattern
+    t = " "  # text
+    p = " "  # pattern
     data.replace("\"", "/")
 
     path = os.path.abspath(data)
@@ -102,6 +103,7 @@ def naive_string_matcher(t, p):
     return steps
 
 
+# d is number of unicode characters
 def rabin_karp_matcher(T, P, d=144697, q=1000000009):
     n = len(T)
     m = len(P)
@@ -118,7 +120,7 @@ def rabin_karp_matcher(T, P, d=144697, q=1000000009):
     for s in range(0, n - m + 1):
         steps += 1
         if p == t:
-            #if P[0:m] == T[s: s + m]:
+            # if P[0:m] == T[s: s + m]:
             # check character for character
             for i in range(m):
                 steps += 1
@@ -130,7 +132,6 @@ def rabin_karp_matcher(T, P, d=144697, q=1000000009):
             if i == m:
                 print("Pattern occurs with shift", s)
                 number_of_occurrences += 1
-
 
         if s < (n - m):
             t = (ord(u"{}".format(T[s + m])) + d * (t - ord(u"{}".format(T[s])) * h)) % q
@@ -154,7 +155,7 @@ def knuth_morris_pratt(T, P):
         steps += 1
 
         while q > 0 and P[q] != T[i]:
-            q = pi[q-1]
+            q = pi[q - 1]
 
         if P[q] == T[i]:
             q = q + 1
@@ -162,10 +163,11 @@ def knuth_morris_pratt(T, P):
         if q == m:
             print("Pattern occurs with shift", i - m + 1)
             number_of_occurrences += 1
-            q = pi[q-1]
+            q = pi[q - 1]
 
     print(f"Pattern occurs {number_of_occurrences} times.")
     return steps
+
 
 def compute_prefix(P):
     m = len(P)
@@ -194,10 +196,12 @@ def boyer_moore_matcher(T, P, sigma):
     number_of_occurrences = 0
 
     while s <= n - m:
+        steps += 1
         j = m - 1
         while j >= 0 and P[j] == T[s + j]:
             j = j - 1
             steps += 1
+
         if j < 0:
             print("Pattern occurs with shift ", s)
             number_of_occurrences += 1
@@ -207,6 +211,7 @@ def boyer_moore_matcher(T, P, sigma):
 
     print(f"Pattern occurs {number_of_occurrences} times.")
     return steps
+
 
 def compute_last_occurrence(P, m, sigma):
     lambd = []
@@ -238,12 +243,4 @@ def compute_good_suffix(P, m):
 
 
 if __name__ == "__main__":
-    # print("Rabin Karp:")
-    # rabin_karp_matcher("jengdjensjen", "jen")
-    # print("KMP:")
-    # knuth_morris_pratt("jengdjensjen", "jen")
-    # print("Booyer Moore:")
-    #char_list = [chr(x) for x in range(144697)]
-    #boyer_moore_matcher("jengdjensjen", "jen", char_list)
-    print(compute_prefix("GGATCC"))
     menu()
