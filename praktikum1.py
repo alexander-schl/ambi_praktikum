@@ -62,27 +62,26 @@ def menu():
 
 
 def string_input(data, pattern):
-    t = " "  # text
-    p = " "  # pattern
-    data.replace("\"", "/")
+    t = ""  # text
+    p = ""  # pattern
 
     path = os.path.abspath(data)
 
     with open(path, "r", encoding="utf-8") as text:
-        # content = text.read().replace("\n","")
         for i in text:
             if i[0] == ">":
                 pass
             else:
-                t += i  # \n muss noch aus t rausgenommen werden oder nicht?
-    if "\"" in pattern:  # checks if the search_string is a path
-        pattern.replace("\"", "/")
+                str = i.replace("\n", "")
+                t += str
+    if os.path.isfile(pattern):  # checks if the search_string is a file
         with open(pattern, "r", encoding="utf-8") as text:
             for i in text:
                 if i[0] == ">":
                     pass
                 else:
-                    p += i
+                    str = i.replace("\n", "")
+                    p += str
     else:
         p = pattern
     return t, p
@@ -96,9 +95,14 @@ def naive_string_matcher(t, p):
 
     for s in range(0, n - m + 1):
         steps += 1
-        if p == t[s:s + m]:
-            print("Pattern occurs with shift", s)
-            number_of_occurrences += 1
+        for i in range(len(p)):
+            steps += 1
+            if p[i] == t[s + i]:
+                if i + 1 == m:
+                    print("Pattern occurs with shift", s)
+                    number_of_occurrences += 1
+            else:
+                break
     print(f"Pattern occurs {number_of_occurrences} times.")
     return steps
 
