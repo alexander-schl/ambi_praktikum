@@ -42,7 +42,7 @@ def menu():
                 print("Anzahl der Verlgeiche:   ", steps)
             elif number == 3:
                 start = time.time()
-                steps = knuth_morris_pratt(t, p)
+                steps = knuth_morris_pratt_matcher(t, p)
                 end = time.time()
                 print("Zeit:", (end - start))
                 print("Anzahl der Verlgeiche:   ", steps)
@@ -94,7 +94,6 @@ def naive_string_matcher(t, p):
     number_of_occurrences = 0
 
     for s in range(0, n - m + 1):
-        steps += 1
         for i in range(len(p)):
             steps += 1
             if p[i] == t[s + i]:
@@ -124,8 +123,8 @@ def rabin_karp_matcher(T, P, d=144697, q=1000000009):
     for s in range(0, n - m + 1):
         steps += 1
         if p == t:
-            # if P[0:m] == T[s: s + m]:
             # check character for character
+            i = 0
             for i in range(m):
                 steps += 1
                 if T[s + i] != P[i]:
@@ -147,7 +146,7 @@ def rabin_karp_matcher(T, P, d=144697, q=1000000009):
     return steps
 
 
-def knuth_morris_pratt(T, P):
+def knuth_morris_pratt_matcher(T, P):
     steps = 0
     n = len(T)
     m = len(P)
@@ -224,8 +223,8 @@ def compute_last_occurrence(P, m, sigma):
         lambd.append(0)
 
     # add numeric value of every char to a list
-    for j in range(m):
-        lambd[ord(P[j])] = j
+    for j in range(1, m + 1):
+        lambd[ord(P[j - 1])] = j
 
     return lambd
 
@@ -236,13 +235,15 @@ def compute_good_suffix(P, m):
     pi1 = compute_prefix(P1)
     gamma = [0] * m
 
-    for j in range(m):
-        gamma[j] = m - pi[m - 1]
-    for l in range(m):
-        j = m - pi1[l]
-        if gamma[j - 1] > (l - pi1[l]):
-            gamma[j - 1] = l - pi1[l]
+    for j in range(1, m):
+        gamma[j - 1] = m - pi[m - 1]
+    for l in range(1, m):
+        j = m - pi1[l - 1]
+        if gamma[j - 1] > (l - pi1[l - 1]):
+            gamma[j - 1] = l - pi1[l - 1]
 
+    # changing last position manually because of indexing...
+    gamma[-1] = 1
     return gamma
 
 
