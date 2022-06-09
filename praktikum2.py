@@ -77,6 +77,39 @@ def levenshtein_distance(text):
             else:
                 final_distanz[i].append(distance)
     print(final_distanz)
+    #return final_distanz
+
+
+def neighbor_joining_algorithm(matrix):
+    for row in matrix:
+        print(row)
+
+    divergence_matrix = []
+
+    divergence_matrix.append(matrix[0])
+    factor = (len(matrix) - 1) - 2
+
+    for y in range(1, len(matrix)):
+        divergent_row = [matrix[y][0]]
+        for x in range(1, len(matrix[y]) -1):
+            try:
+                # R_i sum of all distances for sequence1
+                sum1 = sum(matrix[y][1:])
+                # R_j sum of all distances for sequence2
+                sum2 = sum(matrix[x][1:])
+                gfgf = len(matrix)
+                divergence = factor * matrix[y][x] - sum1 - sum2
+                divergent_row.append(divergence)
+            except:
+                print("hfd")
+        divergence_matrix.append(divergent_row)
+
+    for row in divergence_matrix:
+        print(row)
+
+    # text = data_input("aquifex-tRNA.fasta")
+    # levi = levenshtein_distance(text)
+    # neighbor_joining_algorithm(levi)
 
 if __name__ == "__main__":
     menu()
