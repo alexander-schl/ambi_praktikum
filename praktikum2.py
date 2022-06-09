@@ -7,7 +7,7 @@ def menu():
     text = data_input(data)
     i = 0
     while i == 0:
-        levenshtein_distance(text)
+        lev_distance =  levenshtein_distance(text)
         i = 1
 
 def data_input(data):
@@ -40,44 +40,42 @@ def data_input(data):
     return t
 
 def levenshtein_distance(text):
-    gap_cost = 1
-    table = []
+
     distance = 0
     final_distanz = [[]]
-    final_distanz[0].append(" "*30)
+    final_distanz[0].append(" "*25)
     for i in range(len(text)):
         final_distanz[0].append(text[i][0])
         final_distanz.append([])
-        if i >= 1:
-            final_distanz[i].append(text[i][0])
-    final_distanz.pop(len(text))
+        final_distanz[i+1].append(text[i][0])
     for i in range(len(text)):#initialization form x and y from the list
         for k in range(len(text)):
+            table = []
             len_x = len(text[i][1])
             len_y = len(text[k][1])
-            if len_x == len_y:
+            if text[i][0] == text[k][0]:
                 distance = 0
-            elif len_x != len_y:
+            else:
                 for a in range(len_y): # column of matrix
                     table.append([])
                 for x in range(len_x):
                     table[0].append(x)
-                for y in range(1,len_y):
-                    table[y].append(y)
-                for y in range(1,len_y):
-                    for x in range(1,len_x):
-                        if text[i][1][x] == text[k][1][y]:
+                for y in range(len_y):
+                    if y > 0:
+                        table[y].append(y)
+                for y in range(1, len_y):
+                    for x in range(1, len_x):
+                        if text[i][1][x-1] == text[k][1][y-1]:
                             gap_cost = 0
                         else:
                             gap_cost = 1
                         table[y].append(min(table[y-1][x]+1, table[y-1][x-1]+gap_cost, table[y][x-1]+1))
                 distance = table[len_y-1][len_x-1]
-            if i >= len(text):
-                final_distanz[i+1].append(distance)
-            else:
-                final_distanz[i].append(distance)
-    print(final_distanz)
+            final_distanz[i+1].append(distance)
 
+    for i in range(len(final_distanz)):
+        print(final_distanz[i])
+    return(final_distanz)
 if __name__ == "__main__":
     menu()
 
