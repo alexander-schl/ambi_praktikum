@@ -76,14 +76,34 @@ def levenshtein_distance(text):
                 final_distanz[i+1].append(distance)
             else:
                 final_distanz[i].append(distance)
-    print(final_distanz)
-    #return final_distanz
+    #print(final_distanz)
+    return final_distanz
 
 
 def neighbor_joining_algorithm(matrix):
+
     for row in matrix:
         print(row)
 
+    divergence_matrix = make_divergence_matrix(matrix)
+    minimal_values = []
+    for row in divergence_matrix:
+        min_dict = {
+            "value": min(row[1:]),
+            "y": divergence_matrix.index(row),
+            "x": row.index(min(row[1:]))}
+
+        minimal_values.append(min_dict)
+
+    # get dict with lowest divergence
+    lowest_divergence = min(minimal_values, key=lambda x:x["value"])
+
+    for row in divergence_matrix:
+        print(row)
+
+
+
+def make_divergence_matrix(matrix):
     divergence_matrix = []
 
     divergence_matrix.append(matrix[0])
@@ -91,7 +111,7 @@ def neighbor_joining_algorithm(matrix):
 
     for y in range(1, len(matrix)):
         divergent_row = [matrix[y][0]]
-        for x in range(1, len(matrix[y]) -1):
+        for x in range(1, len(matrix[y]) - 1):
             try:
                 # R_i sum of all distances for sequence1
                 sum1 = sum(matrix[y][1:])
@@ -104,15 +124,13 @@ def neighbor_joining_algorithm(matrix):
                 print("hfd")
         divergence_matrix.append(divergent_row)
 
-    for row in divergence_matrix:
-        print(row)
-
-    # text = data_input("aquifex-tRNA.fasta")
-    # levi = levenshtein_distance(text)
-    # neighbor_joining_algorithm(levi)
+    return divergence_matrix
 
 if __name__ == "__main__":
-    menu()
+    #menu()
 
+    text = data_input("aquifex-tRNA.fasta")
+    levi = levenshtein_distance(text)
+    neighbor_joining_algorithm(levi)
 
 
