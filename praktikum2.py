@@ -11,6 +11,7 @@ def menu():
     i = 0
     while i == 0:
         lev_distance =  levenshtein_distance(text)
+        print(lev_distance)
         all_neighors = upgma(lev_distance)
         print(all_neighors)
         end = construct_newick_string(all_neighors)
@@ -131,10 +132,10 @@ def levenshtein_distance(text):
 
 def upgma(matrix):
     """
-
     :param matrix: list of list which contains the distance between the sequences
     :return: lists build of dicts with parent and two children.
     """
+    counter = 0
     parent_matrix = []
     copy_matrix = copy.copy(matrix[0])
     parent_matrix.append(copy_matrix)
@@ -166,8 +167,8 @@ def upgma(matrix):
 
             my_dict = {
                 "parent" : parent,
-                "child1" : (parent_matrix[min_list[0]][0]),
-                "child2" : (parent_matrix[min_list[1]][0])
+                "child1" : (parent_matrix[min_list[0]][0],0),
+                "child2" : (parent_matrix[min_list[1]][0],0)
             }
             result.append(my_dict)
             parent_matrix[0].pop(min_list[0])
@@ -176,7 +177,8 @@ def upgma(matrix):
             parent_matrix.pop(min_list[0])
             parent_matrix.insert(min_list[0], [parent])
             parent_matrix.pop(min_list[1])
-            parent = "u"+str(int(parent[1])+1)
+            counter += 1
+            parent = "u" + str(counter)
             matrix.pop(min_list[0])
             matrix.insert(min_list[0], updated_list)
             matrix.pop(min_list[1])
@@ -188,11 +190,13 @@ def upgma(matrix):
                 if i == min_list[0]:
                     continue
                 matrix[i].pop(min_list[1])
+            for i in range(len(matrix)):
+                print(matrix[i])
         else:
             my_dict = {
                 "parent":parent,
-                "child1":(parent_matrix[0][1]),
-                "child2":(parent_matrix[2][0])
+                "child1":(parent_matrix[0][1],0),
+                "child2":(parent_matrix[2][0],0)
             }
             result.append(my_dict)
 
