@@ -1,14 +1,12 @@
 import copy
 import os
 import time
-import traceback
 
 
 def menu():
     print("AMBI Praktikum Aufgabe Nr.2 von Alexander Schleiter und Tim Stadager")
     while True:
         try:
-            #aquifex-tRNA.fasta
             data = input("Geben Sie den Pfad einer Datei an, die Sie einlesen möchten:")
             if os.path.isfile(data):
                 text = data_input(data)
@@ -371,9 +369,6 @@ def construct_newick_string(all_neighbours):
 
     newick_string_as_list = []
 
-    # for pair in all_neighbours:
-    #     print(pair)
-
     # holds nodes that are only parent nodes, and their children
     only_parents = keep_only_parents(all_neighbours)
     for pair in only_parents:
@@ -453,12 +448,8 @@ if __name__ == "__main__":
     # menu()
 
     text = data_input("aquifex-tRNA.fasta")
-    hamming_distance(text)
-    # levi = levenshtein_distance(text)
-    # print(text)
-    # menu()
-
-
-    #print(levi)
+    levi = levenshtein_distance(text)
+    neighbor = upgma(levi)
+    print(construct_newick_string())
     # all_neighbours = neighbor_joining_algorithm(levi)
-    print(construct_newick_string([{'parent': 'u0', 'child1': 'a', 'child2': 'b'}, {'parent': 'u1', 'child1': 'u0', 'child2': 'e'}, {'parent': 'u2', 'child1': 'c', 'child2': 'd'}, {'parent': 'u3', 'child1': 'u1', 'child2': 'u2'}]))
+    #print(construct_newick_string([{'parent': 'u0', 'child1': 'a', 'child2': 'b'}, {'parent': 'u1', 'child1': 'u0', 'child2': 'e'}, {'parent': 'u2', 'child1': 'c', 'child2': 'd'}, {'parent': 'u3', 'child1': 'u1', 'child2': 'u2'}]))
