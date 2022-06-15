@@ -1,14 +1,19 @@
+import copy
 import os
 import time
 
 def menu():
     print("AMBI Praktikum Aufgabe Nr.2 von Alexander Schleiter und Tim Stadager")
-    data = input("Geben sie die Datei an die sie einlesen möchten:"     )
-    text = data_input(data)
+    #data = input("Geben sie die Datei an die sie einlesen möchten:"     )
+    #text = data_input(data)
     i = 0
     while i == 0:
-        lev_distance =  levenshtein_distance(text)
+        #lev_distance =  levenshtein_distance(text)
+        lev_distance = [[" ","a","b","c","d","e"],["a",0,17,21,31,23],["b",17,0,30,34,21],["c",21,30,0,28,39],["d",31,34,28,0,43],["e",
+                        23,21,39,43,0]]
+        upgma(lev_distance)
         i = 1
+
 
 def data_input(data):
     counter = 0
@@ -38,6 +43,7 @@ def data_input(data):
                     counter = 0
                     counter1 += 1
     return t
+
 
 def levenshtein_distance(text):
 
@@ -77,6 +83,60 @@ def levenshtein_distance(text):
     return(final_distanz)
 
 
+def upgma(matrix):
+    """""
+    for i in range(1, len(matrix)):
+        counter = 1
+        for k in range(1, len(matrix)):
+            if matrix[i][k] == 0:
+                while counter >= 1:
+                    matrix[i].pop(1)
+                    counter -= 1
+                break
+            counter += 1
+    
+    for i in range(len(matrix)):
+        print(matrix[i])
+    """""
+    while len(matrix[1]) > 3:
+        counter = 0
+        minimum = matrix[1][2]
+        min_list = [1,2]
+        for i in range(1, len(matrix)):
+            for k in range(1, len(matrix[i])):
+                if minimum > matrix[i][k] >= 0 and i != k:
+                    min_list[0] = i # Weiterarbeiten mit der vollständige Matrix und zurückführen
+                    min_list[1] = k
+                    minimum = matrix[min_list[0]][min_list[1]]
+        min_list.sort()
+        print(minimum)
+        print(min_list)
+        updated_list = [matrix[min_list[0]][0]+"+"+matrix[min_list[1]][0]]
+        print(len(updated_list[0].split("+")))
+        proportional = len(updated_list[0].split("+"))
+        for i in range(1, len(matrix[min_list[0]])):
+            if matrix[min_list[0]][i] == 0 or matrix[i][min_list[1]] == 0:
+                continue
+            else:
+                updated_list.append((matrix[min_list[0]][i]*(proportional-1)+(matrix[i][min_list[1]]))/proportional)
+        updated_list.insert(min_list[0], 0)
+        print("Updated List:",  updated_list)
+        matrix.pop(min_list[0])         #Attention the bigger indix must be deleted first
+        matrix.insert(min_list[0], updated_list)
+        matrix.pop(min_list[1])
+        copy_list = copy.copy(updated_list)
+        #matrix.insert(updated_list, min(min_list))
+        for i in range(len(matrix)):
+                matrix[i].pop(min_list[0])
+                matrix[i].insert(min_list[0], copy_list[i])
+                if i == min_list[0]:
+                    continue
+                matrix[i].pop(min_list[1])
+        #matrix.insert(min(min_list), updated_list)
+        for i in range(len(matrix)):
+            print(matrix[i])
+
+
 def neighbor_joining_algorithm(matrix):
     for row in matrix:
         print(row)
@@ -102,7 +162,7 @@ def neighbor_joining_algorithm(matrix):
         divergence_matrix.append(divergent_row)
 
     for row in divergence_matrix:
-        print(row)
+        print(row),
 
     # text = data_input("aquifex-tRNA.fasta")
     # levi = levenshtein_distance(text)
