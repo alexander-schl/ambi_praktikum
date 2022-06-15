@@ -156,9 +156,9 @@ def upgma(matrix):
                         minimum = matrix[min_list[0]][min_list[1]]
             min_list.sort()
             updated_list = [matrix[min_list[0]][0]+"+"+matrix[min_list[1]][0]]
-            proportional = len(updated_list[0].split("+"))
+            proportional = len(updated_list[0].split("+"))  #determine the Weight
             proportional1 = len(matrix[min_list[1]][0].split("+"))
-            for i in range(1, len(matrix[min_list[0]])):
+            for i in range(1, len(matrix[min_list[0]])): # calculates new column of the fusioned column/line
                 if matrix[min_list[0]][i] == 0 or matrix[i][min_list[1]] == 0:
                     continue
                 else:
@@ -190,8 +190,6 @@ def upgma(matrix):
                 if i == min_list[0]:
                     continue
                 matrix[i].pop(min_list[1])
-            for i in range(len(matrix)):
-                print(matrix[i])
         else:
             my_dict = {
                 "parent":parent,
