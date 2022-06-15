@@ -1,3 +1,4 @@
+import copy
 import os
 import time
 import traceback
@@ -42,6 +43,11 @@ def menu():
             print("Der angegebene Pfad konnte nicht gefunden werden. Versuchen Sie es erneut.")
 
 def data_input(data):
+    """
+
+    :param data: file .fasta
+    :return: list of list contains name and sequence
+    """
     counter = 0
     t = []
     key = ""
@@ -106,6 +112,11 @@ def hamming_distance(text):
     return matrix
 
 def levenshtein_distance(text):
+    """
+
+    :param text: list of sequences
+    :return: list of lists
+    """
     distance = 0
     final_distanz = [[]]
     final_distanz[0].append(" " * 25)
@@ -138,47 +149,77 @@ def levenshtein_distance(text):
                                             table[y][x - 1] + 1))
                 distance = table[len_y - 1][len_x - 1]
             final_distanz[i + 1].append(distance)
-    # for i in range(len(final_distanz)):
-    #     print(final_distanz[i])
     return (final_distanz)
 
-# def levenshtein_distance(text):
-#     distance = 0
-#     final_distanz = [[]]
-#     final_distanz[0].append(" " * 25)
-#     for i in range(len(text)):
-#         final_distanz[0].append(text[i][0])
-#         final_distanz.append([])
-#         final_distanz[i + 1].append(text[i][0])
-#     for i in range(len(text)):  # initialization form x and y from the list
-#         for k in range(len(text)):
-#             table = []
-#             len_x = len(text[i][1])
-#             len_y = len(text[k][1])
-#             if text[i][0] == text[k][0]:
-#                 distance = 0
-#             else:
-#                 for a in range(len_y):  # column of matrix
-#                     table.append([])
-#                 for x in range(len_x):
-#                     table[0].append(x)
-#                 for y in range(len_y):
-#                     if y > 0:
-#                         table[y].append(y)
-#                 for y in range(1, len_y):
-#                     for x in range(1, len_x):
-#                         if text[i][1][x - 1] == text[k][1][y - 1]:
-#                             gap_cost = 0
-#                         else:
-#                             gap_cost = 1
-#                         table[y].append(min(table[y - 1][x] + 1, table[y - 1][x - 1] + gap_cost,
-#                                             table[y][x - 1] + 1))
-#                 distance = table[len_y - 1][len_x - 1]
-#             final_distanz[i + 1].append(distance)
-#     # for i in range(len(final_distanz)):
-#     #     print(final_distanz[i])
-#     return (final_distanz)
 
+def upgma(matrix):
+    """
+
+    :param matrix: list of list which contains the distance between the sequences
+    :return: lists build of dicts with parent and two children.
+    """
+    parent_matrix = []
+    copy_matrix = copy.copy(matrix[0])
+    parent_matrix.append(copy_matrix)
+    for i in range(1, len(parent_matrix[0])):
+        parent_matrix.append([])
+        parent_matrix[i].append(copy_matrix[i])
+    result = []
+    parent = "u0"
+    while len(matrix[1]) > 2:
+        if len(matrix[1]) > 3:
+            minimum = matrix[1][2]
+            min_list = [1, 2]
+            for i in range(1, len(matrix)):
+                for k in range(1, len(matrix[i])): # returns the smallest possible number that does not lie on the diagonal.
+                    if minimum > matrix[i][k] >= 0 and i != k:
+                        min_list[0] = i
+                        min_list[1] = k
+                        minimum = matrix[min_list[0]][min_list[1]]
+            min_list.sort()
+            updated_list = [matrix[min_list[0]][0]+"+"+matrix[min_list[1]][0]]
+            proportional = len(updated_list[0].split("+"))
+            proportional1 = len(matrix[min_list[1]][0].split("+"))
+            for i in range(1, len(matrix[min_list[0]])):
+                if matrix[min_list[0]][i] == 0 or matrix[i][min_list[1]] == 0:
+                    continue
+                else:
+                    updated_list.append((matrix[min_list[0]][i]*(proportional-1)+(matrix[i][min_list[1]])*proportional1)/proportional)
+            updated_list.insert(min_list[0], 0)
+
+            my_dict = {
+                "parent" : parent,
+                "child1" : (parent_matrix[min_list[0]][0]),
+                "child2" : (parent_matrix[min_list[1]][0])
+            }
+            result.append(my_dict)
+            parent_matrix[0].pop(min_list[0])
+            parent_matrix[0].insert(min_list[0], parent)
+            parent_matrix[0].pop(min_list[1])
+            parent_matrix.pop(min_list[0])
+            parent_matrix.insert(min_list[0], [parent])
+            parent_matrix.pop(min_list[1])
+            parent = "u"+str(int(parent[1])+1)
+            matrix.pop(min_list[0])
+            matrix.insert(min_list[0], updated_list)
+            matrix.pop(min_list[1])
+            copy_list = copy.copy(updated_list)
+
+            for i in range(len(matrix)):
+                matrix[i].pop(min_list[0])
+                matrix[i].insert(min_list[0], copy_list[i])
+                if i == min_list[0]:
+                    continue
+                matrix[i].pop(min_list[1])
+        else:
+            my_dict = {
+                "parent":parent,
+                "child1":(parent_matrix[0][1]),
+                "child2":(parent_matrix[2][0])
+            }
+            result.append(my_dict)
+
+            return result
 
 def neighbor_joining_algorithm(matrix):
     """
@@ -409,7 +450,10 @@ def keep_only_parents(neighbours):
 
 
 if __name__ == "__main__":
-    # text = data_input("aquifex-tRNA.fasta")
+    # menu()
+
+    text = data_input("aquifex-tRNA.fasta")
+    hamming_distance(text)
     # levi = levenshtein_distance(text)
     # print(text)
     # menu()
