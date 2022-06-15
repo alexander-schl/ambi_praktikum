@@ -12,39 +12,43 @@ def menu():
                 text = data_input(data)
 
                 print("\nHamming-Distanzmatrix:")
-                hamming = hamming_distance(text.copy())
+                hamming = hamming_distance(copy.deepcopy(text))
                 for row in hamming:
                     print(row)
 
                 print("\nLevenshtein-Distanzmatrix:")
-                levenshtein = levenshtein_distance(text.copy())
+                levenshtein = levenshtein_distance(copy.deepcopy(text))
                 for row in levenshtein:
                     print(row)
 
                 start_time_upgma = time.time()
                 print("\nUPGMA-Newick-String:")
-                #upgma =
-                #print(upgma)
+                levenshtein_for_upgma = copy.deepcopy(levenshtein)
+                upgma = upgma_algorithm(levenshtein_for_upgma)
+                upgma_newick = construct_newick_string(upgma)
+                print(upgma_newick)
                 print("Laufzeit von UPGMA: ", time.time() - start_time_upgma)
 
                 start_time_nj = time.time()
                 print("\nNeighbour-Joinig-Newick-String:")
-                neighbours = neighbor_joining_algorithm(levenshtein.copy())
+                levenshtein_for_nj = copy.deepcopy(levenshtein)
+                neighbours = neighbor_joining_algorithm(levenshtein_for_nj)
                 newick_neighbour = construct_newick_string(neighbours)
                 print(newick_neighbour)
                 print("Laufzeit von Neighbour Joining: ", time.time() - start_time_nj)
-
                 break
             else:
                 print("Der angegebene Pfad konnte nicht gefunden werden. Versuchen Sie es erneut.")
         except FileNotFoundError:
             print("Der angegebene Pfad konnte nicht gefunden werden. Versuchen Sie es erneut.")
 
+
 def data_input(data):
     """
+    Reads file with sequences.
 
     :param data: file .fasta
-    :return: list of list contains name and sequence
+    :return: list of lists containing name and sequence
     """
     counter = 0
     t = []
@@ -111,13 +115,14 @@ def hamming_distance(text):
 
 def levenshtein_distance(text):
     """
+    Constructs distance matrix with Levenshtein distance.
 
     :param text: list of sequences
     :return: list of lists
     """
     distance = 0
     final_distanz = [[]]
-    final_distanz[0].append(" " * 25)
+    final_distanz[0].append("")
     for i in range(len(text)):
         final_distanz[0].append(text[i][0])
         final_distanz.append([])
@@ -150,8 +155,13 @@ def levenshtein_distance(text):
     return (final_distanz)
 
 
-def upgma(matrix):
+def upgma_algorithm(matrix):
     """
+    Uses the UPGMA algorithm to construct parent and child nodes of sequences with
+    the following structure:
+    {'parent': 'name', 'child1': ('name_child1', distance_to_parent_node),
+        'child2': ('name_child2', distance_to_parent_node)}
+
     :param matrix: list of list which contains the distance between the sequences
     :return: lists build of dicts with parent and two children.
     """
@@ -210,8 +220,6 @@ def upgma(matrix):
                 if i == min_list[0]:
                     continue
                 matrix[i].pop(min_list[1])
-            for i in range(len(matrix)):
-                print(matrix[i])
         else:
             my_dict = {
                 "parent":parent,
@@ -221,6 +229,7 @@ def upgma(matrix):
             result.append(my_dict)
 
             return result
+
 
 def neighbor_joining_algorithm(matrix):
     """
@@ -330,7 +339,7 @@ def neighbor_joining_algorithm(matrix):
 
 def make_divergence_matrix(matrix_template):
     """
-    Cosntruct a divergence matrix.
+    Cosntruct a divergence matrix for use in Neighbour Joining.
 
     :param matrix_template: Distance matrix (list of lists).
     :return: List of lists
@@ -448,12 +457,4 @@ def keep_only_parents(neighbours):
 
 
 if __name__ == "__main__":
-    # menu()
-
     menu()
-
-    #text = data_input("aquifex-tRNA.fasta")
-    #hamming_distance(text)
-    # levi = levenshtein_distance(text)
-    #all_neighbours = neighbor_joining_algorithm(levi)
-    #print(construct_newick_string(all_neighbours))
