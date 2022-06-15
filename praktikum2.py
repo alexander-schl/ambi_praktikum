@@ -43,6 +43,41 @@ def data_input(data):
     return t
 
 
+def hamming_distance(text):
+    """
+    Constructs distance matrix with Hamming distance. Unequal sequence length is marked as -1.
+
+    :param text: list of lists with sequence names and sequences
+    :return: list of lists
+    """
+    matrix = [[""]]
+
+    for row in text:
+        matrix.append([row[0]])
+        matrix[0].append(row[0])
+
+    # insert "" to account for index in final matrix when comparing
+    text.insert(0, "")
+
+    for y in range(1, len(matrix)):
+        for x in range(1, len(matrix)):
+            seq1 = text[y][1]
+            seq2 = text[x][1]
+            distance = 0
+            if len(seq1) == len(seq2):
+                for i in range(len(seq1)):
+                    if seq1[i] != seq2[i]:
+                        distance += 1
+            else:
+                distance = -1
+
+            matrix[y].append(distance)
+
+    for row in matrix:
+        print(row)
+
+    return matrix
+
 def levenshtein_distance(text):
     distance = 0
     final_distanz = [[]]
@@ -313,6 +348,7 @@ if __name__ == "__main__":
     # menu()
 
     text = data_input("aquifex-tRNA.fasta")
-    levi = levenshtein_distance(text)
-    all_neighbours = neighbor_joining_algorithm(levi)
-    print(construct_newick_string(all_neighbours))
+    hamming_distance(text)
+    # levi = levenshtein_distance(text)
+    #all_neighbours = neighbor_joining_algorithm(levi)
+    #print(construct_newick_string(all_neighbours))
