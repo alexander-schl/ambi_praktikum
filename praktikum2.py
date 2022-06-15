@@ -152,10 +152,10 @@ def levenshtein_distance(text):
 
 def upgma(matrix):
     """
-
     :param matrix: list of list which contains the distance between the sequences
     :return: lists build of dicts with parent and two children.
     """
+    counter = 0
     parent_matrix = []
     copy_matrix = copy.copy(matrix[0])
     parent_matrix.append(copy_matrix)
@@ -187,8 +187,8 @@ def upgma(matrix):
 
             my_dict = {
                 "parent" : parent,
-                "child1" : (parent_matrix[min_list[0]][0]),
-                "child2" : (parent_matrix[min_list[1]][0])
+                "child1" : (parent_matrix[min_list[0]][0],0),
+                "child2" : (parent_matrix[min_list[1]][0],0)
             }
             result.append(my_dict)
             parent_matrix[0].pop(min_list[0])
@@ -197,7 +197,8 @@ def upgma(matrix):
             parent_matrix.pop(min_list[0])
             parent_matrix.insert(min_list[0], [parent])
             parent_matrix.pop(min_list[1])
-            parent = "u"+str(int(parent[1])+1)
+            counter += 1
+            parent = "u" + str(counter)
             matrix.pop(min_list[0])
             matrix.insert(min_list[0], updated_list)
             matrix.pop(min_list[1])
@@ -209,11 +210,13 @@ def upgma(matrix):
                 if i == min_list[0]:
                     continue
                 matrix[i].pop(min_list[1])
+            for i in range(len(matrix)):
+                print(matrix[i])
         else:
             my_dict = {
                 "parent":parent,
-                "child1":(parent_matrix[0][1]),
-                "child2":(parent_matrix[2][0])
+                "child1":(parent_matrix[0][1],0),
+                "child2":(parent_matrix[2][0],0)
             }
             result.append(my_dict)
 
@@ -447,9 +450,10 @@ def keep_only_parents(neighbours):
 if __name__ == "__main__":
     # menu()
 
-    text = data_input("aquifex-tRNA.fasta")
-    levi = levenshtein_distance(text)
-    neighbor = upgma(levi)
-    print(construct_newick_string())
-    # all_neighbours = neighbor_joining_algorithm(levi)
-    #print(construct_newick_string([{'parent': 'u0', 'child1': 'a', 'child2': 'b'}, {'parent': 'u1', 'child1': 'u0', 'child2': 'e'}, {'parent': 'u2', 'child1': 'c', 'child2': 'd'}, {'parent': 'u3', 'child1': 'u1', 'child2': 'u2'}]))
+    menu()
+
+    #text = data_input("aquifex-tRNA.fasta")
+    #hamming_distance(text)
+    # levi = levenshtein_distance(text)
+    #all_neighbours = neighbor_joining_algorithm(levi)
+    #print(construct_newick_string(all_neighbours))
