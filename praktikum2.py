@@ -21,21 +21,40 @@ def menu():
                 for row in levenshtein:
                     print(row)
 
+                print("\n")
+
+                # Algorithms with Hamming
                 start_time_upgma = time.time()
-                print("\nUPGMA-Newick-String:")
-                levenshtein_for_upgma = copy.deepcopy(levenshtein)
-                upgma = upgma_algorithm(levenshtein_for_upgma)
-                upgma_newick = construct_newick_string(upgma)
+                print("\nUPGMA-Newick-String (Hamming):")
+                upgma_h = upgma_algorithm(copy.deepcopy(hamming))
+                upgma_newick = construct_newick_string(upgma_h)
                 print(upgma_newick)
-                print("Laufzeit von UPGMA: ", time.time() - start_time_upgma)
+                print("Laufzeit von UPGMA (Hamming): ", time.time() - start_time_upgma)
 
                 start_time_nj = time.time()
-                print("\nNeighbour-Joinig-Newick-String:")
-                levenshtein_for_nj = copy.deepcopy(levenshtein)
-                neighbours = neighbor_joining_algorithm(levenshtein_for_nj)
-                newick_neighbour = construct_newick_string(neighbours)
+                print("\nNeighbour-Joinig-Newick-String (Hamming):")
+                neighbours_h = neighbor_joining_algorithm(copy.deepcopy(hamming))
+                newick_neighbour = construct_newick_string(neighbours_h)
                 print(newick_neighbour)
-                print("Laufzeit von Neighbour Joining: ", time.time() - start_time_nj)
+                print("Laufzeit von Neighbour Joining (Hamming): ", time.time() - start_time_nj)
+
+                print("\n")
+
+                # Algorithms with Levenshtein
+                start_time_upgma = time.time()
+                print("\nUPGMA-Newick-String (Levenshtein):")
+                upgma_l = upgma_algorithm(copy.deepcopy(levenshtein))
+                upgma_newick = construct_newick_string(upgma_l)
+                print(upgma_newick)
+                print("Laufzeit von UPGMA (Levenshtein): ", time.time() - start_time_upgma)
+
+                start_time_nj = time.time()
+                print("\nNeighbour-Joinig-Newick-String (Levenshtein):")
+                neighbours_l = neighbor_joining_algorithm(copy.deepcopy(levenshtein))
+                newick_neighbour = construct_newick_string(neighbours_l)
+                print(newick_neighbour)
+                print("Laufzeit von Neighbour Joining (Levenshtein): ", time.time() - start_time_nj)
+
                 break
             else:
                 print("Der angegebene Pfad konnte nicht gefunden werden. Versuchen Sie es erneut.")
@@ -105,7 +124,7 @@ def hamming_distance(text):
                     if seq1[i] != seq2[i]:
                         distance += 1
             else:
-                distance = -1
+                distance = 99999
 
             matrix[y].append(distance)
 
@@ -176,7 +195,7 @@ def upgma_algorithm(matrix):
     parent = "u0"
     while len(matrix[1]) > 2:
         if len(matrix[1]) > 3:
-            minimum = matrix[1][2]
+            minimum = 99999
             min_list = [1, 2]
             for i in range(1, len(matrix)):
                 for k in range(1, len(matrix[i])): # returns the smallest possible number that does not lie on the diagonal.
