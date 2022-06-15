@@ -5,13 +5,41 @@ import traceback
 
 def menu():
     print("AMBI Praktikum Aufgabe Nr.2 von Alexander Schleiter und Tim Stadager")
-    data = input("Geben sie die Datei an die sie einlesen möchten:")
-    text = data_input(data)
-    i = 0
-    while i == 0:
-        lev_distance = levenshtein_distance(text)
-        i = 1
+    while True:
+        try:
+            #aquifex-tRNA.fasta
+            data = input("Geben Sie den Pfad einer Datei an, die Sie einlesen möchten:")
+            if os.path.isfile(data):
+                text = data_input(data)
 
+                print("\nHamming-Distanzmatrix:")
+                hamming = hamming_distance(text.copy())
+                for row in hamming:
+                    print(row)
+
+                print("\nLevenshtein-Distanzmatrix:")
+                levenshtein = levenshtein_distance(text.copy())
+                for row in levenshtein:
+                    print(row)
+
+                start_time_upgma = time.time()
+                print("\nUPGMA-Newick-String:")
+                #upgma =
+                #print(upgma)
+                print("Laufzeit von UPGMA: ", time.time() - start_time_upgma)
+
+                start_time_nj = time.time()
+                print("\nNeighbour-Joinig-Newick-String:")
+                neighbours = neighbor_joining_algorithm(levenshtein.copy())
+                newick_neighbour = construct_newick_string(neighbours)
+                print(newick_neighbour)
+                print("Laufzeit von Neighbour Joining: ", time.time() - start_time_nj)
+
+                break
+            else:
+                print("Der angegebene Pfad konnte nicht gefunden werden. Versuchen Sie es erneut.")
+        except FileNotFoundError:
+            print("Der angegebene Pfad konnte nicht gefunden werden. Versuchen Sie es erneut.")
 
 def data_input(data):
     counter = 0
@@ -73,8 +101,7 @@ def hamming_distance(text):
 
             matrix[y].append(distance)
 
-    for row in matrix:
-        print(row)
+
 
     return matrix
 
@@ -114,6 +141,43 @@ def levenshtein_distance(text):
     # for i in range(len(final_distanz)):
     #     print(final_distanz[i])
     return (final_distanz)
+
+# def levenshtein_distance(text):
+#     distance = 0
+#     final_distanz = [[]]
+#     final_distanz[0].append(" " * 25)
+#     for i in range(len(text)):
+#         final_distanz[0].append(text[i][0])
+#         final_distanz.append([])
+#         final_distanz[i + 1].append(text[i][0])
+#     for i in range(len(text)):  # initialization form x and y from the list
+#         for k in range(len(text)):
+#             table = []
+#             len_x = len(text[i][1])
+#             len_y = len(text[k][1])
+#             if text[i][0] == text[k][0]:
+#                 distance = 0
+#             else:
+#                 for a in range(len_y):  # column of matrix
+#                     table.append([])
+#                 for x in range(len_x):
+#                     table[0].append(x)
+#                 for y in range(len_y):
+#                     if y > 0:
+#                         table[y].append(y)
+#                 for y in range(1, len_y):
+#                     for x in range(1, len_x):
+#                         if text[i][1][x - 1] == text[k][1][y - 1]:
+#                             gap_cost = 0
+#                         else:
+#                             gap_cost = 1
+#                         table[y].append(min(table[y - 1][x] + 1, table[y - 1][x - 1] + gap_cost,
+#                                             table[y][x - 1] + 1))
+#                 distance = table[len_y - 1][len_x - 1]
+#             final_distanz[i + 1].append(distance)
+#     # for i in range(len(final_distanz)):
+#     #     print(final_distanz[i])
+#     return (final_distanz)
 
 
 def neighbor_joining_algorithm(matrix):
@@ -345,10 +409,12 @@ def keep_only_parents(neighbours):
 
 
 if __name__ == "__main__":
+    # text = data_input("aquifex-tRNA.fasta")
+    # levi = levenshtein_distance(text)
+    # print(text)
     # menu()
 
-    text = data_input("aquifex-tRNA.fasta")
-    hamming_distance(text)
-    # levi = levenshtein_distance(text)
-    #all_neighbours = neighbor_joining_algorithm(levi)
-    #print(construct_newick_string(all_neighbours))
+
+    #print(levi)
+    # all_neighbours = neighbor_joining_algorithm(levi)
+    print(construct_newick_string([{'parent': 'u0', 'child1': 'a', 'child2': 'b'}, {'parent': 'u1', 'child1': 'u0', 'child2': 'e'}, {'parent': 'u2', 'child1': 'c', 'child2': 'd'}, {'parent': 'u3', 'child1': 'u1', 'child2': 'u2'}]))
