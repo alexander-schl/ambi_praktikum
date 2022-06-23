@@ -220,7 +220,7 @@ def compute_last_occurrence(P, m, sigma):
     lambd = []
 
     for char in sigma:
-        lambd.append(0)
+        lambd.append(1)
 
     # add numeric value of every char to a list
     for j in range(1, m + 1):
