@@ -117,6 +117,7 @@ def rabin_karp_matcher(T, P, d=144697, q=1000000009):
     number_of_occurrences = 0
 
     for i in range(0, m):
+        # calc hash value for pattern and text
         p = (d * p + ord(u"{}".format(P[i]))) % q
         t = (d * t + ord(u"{}".format(T[i]))) % q
 
@@ -220,7 +221,7 @@ def compute_last_occurrence(P, m, sigma):
     lambd = []
 
     for char in sigma:
-        lambd.append(1)
+        lambd.append(-1)
 
     # add numeric value of every char to a list
     for j in range(1, m + 1):
