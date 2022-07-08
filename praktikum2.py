@@ -7,8 +7,7 @@ def menu():
     print("AMBI Praktikum Aufgabe Nr.2 von Alexander Schleiter und Tim Stadager")
     while True:
         try:
-            # data = input("Geben Sie den Pfad einer Datei an, die Sie einlesen möchten:")
-            data = "aquifex-tRNA.fasta"
+            data = input("Geben Sie den Pfad einer Datei an, die Sie einlesen möchten:")
             if os.path.isfile(data):
                 text = data_input(data)
 
@@ -92,8 +91,6 @@ def data_input(data):
                 if counter == 3:
                     t.append([])
                     value = value.replace("\n", "")
-                    if "(" in key:
-                        print("jener")
                     key = key.replace("(", "|")
                     key = key.replace(")", "|")
                     t[counter1].append(key)
