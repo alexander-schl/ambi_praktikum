@@ -1,6 +1,8 @@
 import copy
-
+import math
 import random
+
+
 def menu():
     calc_hidden_markov_model()
 
@@ -10,12 +12,12 @@ def calc_hidden_markov_model():
     sequenz = []
     state = []
     symbol = ["", "-", "+"]
-    model1 = [["","A", "C", "G", "T"],
+    model1 = [["", "A", "C", "G", "T"],
               ["A", "0.300", "0.205", "0.285", "0.210"],
               ["C", "0.322", "0.298", "0.078", "0.302"],
               ["T", "0.248", "0.246", "0.298", "0.208"],
               ["G", "0.177", "0.239", "0.292", "0.292"]]
-    model2 = [["","A", "C", "G", "T"],
+    model2 = [["", "A", "C", "G", "T"],
               ["A", "0.180", "0.274", "0.426", "0.120"],
               ["C", "0.171", "0.368", "0.274", "0.188"],
               ["T", "0.161", "0.339", "0.375", "0.125"],
@@ -31,7 +33,7 @@ def calc_hidden_markov_model():
              ["G", "0.025", "0.025", "0.025", "0.025", "0.223", "0.221", "0.268", "0.187"],
              ["T", "0.025", "0.025", "0.025", "0.025", "0.159", "0.215", "0.263", "0.263"]]
     """
-    steady = 1 # which model
+    steady = 1  # which model
     if random.randint(1, 2) == 2:
         steady = 2
     start = random.randint(1, 4)
@@ -73,6 +75,8 @@ def calc_hidden_markov_model():
         print(k)
     print(sequenz)
     print(state)
+
+
 def calc_viterbi_path():
     pass
     pass
@@ -90,19 +94,20 @@ def calc_viterbi_path(sequence, minus_model, plus_model, transitions):
     """
     minus_path = []
     plus_path = []
+    viterbi_path = []
+    viterbi_path_str = ""
 
     # 1/2 because of two states
     starting_state_prob = 1 / 2
+
     # 1/4 because of ACGT
     starting_emission_prob = 1 / 4
-
-    minus_path.append(("-", starting_state_prob * starting_emission_prob))
-    plus_path.append(("+", starting_state_prob * starting_emission_prob))
+    minus_path.append(("-", math.log(starting_state_prob * starting_emission_prob, 2)))
+    plus_path.append(("+", math.log(starting_state_prob * starting_emission_prob, 2)))
 
     for char_index in range(1, len(sequence)):
         # default assume A
         i = 0
-
         if sequence[char_index] == "C":
             i = 1
         elif sequence[char_index] == "G":
@@ -119,40 +124,41 @@ def calc_viterbi_path(sequence, minus_model, plus_model, transitions):
         elif sequence[char_index - 1] == "T":
             pci = 3
 
-        # calc max probability for minus path
-        minus_to_minus_prob = minus_path[char_index - 1][1] * transitions[0][0] * minus_model[pci][i]
-        plus_to_minus_prob = plus_path[char_index - 1][1] * transitions[1][0] * plus_model[pci][i]
+        # calc max probability for minus path with log
+        minus_to_minus_prob = minus_path[char_index - 1][1] + math.log(
+            transitions[0][0] * minus_model[pci][
+                i], 2)
+        plus_to_minus_prob = plus_path[char_index - 1][1] + math.log(
+            transitions[1][0] * plus_model[pci][i], 2)
 
         if minus_to_minus_prob >= plus_to_minus_prob:
-            minus_path.append(("-", minus_to_minus_prob))
+            minus_path.append(("-", minus_to_minus_prob, 2))
         else:
-            minus_path.append(("+", plus_to_minus_prob))
+            minus_path.append(("+", plus_to_minus_prob, 2))
 
-
-        # calc max probability for plus path
-        minus_to_plus_prob = minus_path[char_index - 1][1] * transitions[0][1] * minus_model[pci][i]
-        plus_to_plus_prob = plus_path[char_index - 1][1] * transitions[1][1] * plus_model[pci][i]
+        # calc max probability for plus path with log
+        minus_to_plus_prob = minus_path[char_index - 1][1] + math.log(transitions[0][1] * minus_model[pci][
+            i], 2)
+        plus_to_plus_prob = plus_path[char_index - 1][1] + math.log(transitions[1][1] * plus_model[pci][
+            i], 2)
 
         if plus_to_plus_prob >= minus_to_plus_prob:
-            plus_path.append(("+", plus_to_plus_prob))
+            plus_path.append(("+", plus_to_plus_prob, 2))
         else:
-            plus_path.append(("-", minus_to_plus_prob))
+            plus_path.append(("-", minus_to_plus_prob, 2))
+
+        # get viterbi path with higher end probability
+        if minus_path[-1] >= plus_path[-1]:
+            viterbi_path = copy.deepcopy(minus_path)
+        else:
+            viterbi_path = copy.deepcopy(plus_path)
 
 
-    print(minus_path)
-    print(plus_path)
-
-    # get viterbi path with higher end probability
-    if minus_path[-1] >= plus_path[-1]:
-        viterbi_path = copy.deepcopy(minus_path)
-    else:
-        viterbi_path = copy.deepcopy(plus_path)
-
-    viterbi_path_str = ""
     for state in viterbi_path:
         viterbi_path_str += state[0]
 
     return viterbi_path_str
+
 
 if __name__ == "__main__":
     # order of values: ACGT
@@ -170,7 +176,7 @@ if __name__ == "__main__":
     # order of values: minus, plus
     transitions = [[0.9, 0.1], [0.2, 0.8]]
 
-    sequence = "GCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTC"
+    sequence = "GCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTC"
 
     print("Viterbi path:", calc_viterbi_path(sequence, minus_model, plus_model, transitions))
 
