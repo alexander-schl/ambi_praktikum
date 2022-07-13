@@ -129,7 +129,7 @@ def hamming_distance(text):
             matrix[y].append(distance)
 
 
-
+    print(matrix)
     return matrix
 
 def levenshtein_distance(text):
@@ -146,7 +146,7 @@ def levenshtein_distance(text):
         final_distanz[0].append(text[i][0])
         final_distanz.append([])
         final_distanz[i + 1].append(text[i][0])
-    for i in range(len(text)):  # initialization form x and y from the list
+    for i in range(len(text)):  # initialization from x and y from the list
         for k in range(len(text)):
             table = []
             len_x = len(text[i][1])
@@ -154,15 +154,15 @@ def levenshtein_distance(text):
             if text[i][0] == text[k][0]:
                 distance = 0
             else:
-                for a in range(len_y):  # column of matrix
+                for a in range(len_y+1):  # column of matrix
                     table.append([])
-                for x in range(len_x):
+                for x in range(len_x+1):
                     table[0].append(x)
-                for y in range(len_y):
+                for y in range(len_y+1):
                     if y > 0:
                         table[y].append(y)
-                for y in range(1, len_y):
-                    for x in range(1, len_x):
+                for y in range(1, len_y+1):
+                    for x in range(1, len_x+1):
                         if text[i][1][x - 1] == text[k][1][y - 1]:
                             gap_cost = 0
                         else:
@@ -211,7 +211,7 @@ def upgma_algorithm(matrix):
                 if matrix[min_list[0]][i] == 0 or matrix[i][min_list[1]] == 0:
                     continue
                 else:
-                    updated_list.append((matrix[min_list[0]][i]*(proportional-1)+(matrix[i][min_list[1]])*proportional1)/proportional)
+                    updated_list.append((matrix[min_list[0]][i]*(proportional-1)+(matrix[i][min_list[1]])*proportional1)/proportional+proportional1)
             updated_list.insert(min_list[0], 0)
 
             my_dict = {

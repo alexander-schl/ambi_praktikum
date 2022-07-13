@@ -1,4 +1,5 @@
 import copy
+import math
 
 import random
 def menu():
@@ -170,7 +171,7 @@ if __name__ == "__main__":
     # order of values: minus, plus
     transitions = [[0.9, 0.1], [0.2, 0.8]]
 
-    sequence = "GCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTC"
+    sequence = "GGCCGACCGCAGTGTGGGAACCCAGCTTATCCTGTCTTAGAGCTGGAAGGTGAGATGGCGGGGCCACTCTACTTTCCTTGAGCCACTTACTAAACCCAAA"
 
     print("Viterbi path:", calc_viterbi_path(sequence, minus_model, plus_model, transitions))
 
