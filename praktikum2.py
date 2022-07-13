@@ -53,7 +53,8 @@ def menu():
                 neighbours_l = neighbor_joining_algorithm(copy.deepcopy(levenshtein))
                 newick_neighbour = construct_newick_string(neighbours_l)
                 print(newick_neighbour)
-                print("Laufzeit von Neighbour Joining (Levenshtein): ", time.time() - start_time_nj)
+                print("Laufzeit von Neighbour Joining (Levenshtein): ",
+                      time.time() - start_time_nj)
 
                 break
             else:
@@ -90,6 +91,8 @@ def data_input(data):
                 if counter == 3:
                     t.append([])
                     value = value.replace("\n", "")
+                    key = key.replace("(", "|")
+                    key = key.replace(")", "|")
                     t[counter1].append(key)
                     t[counter1].append(value)
                     key, value = "", ""
@@ -128,9 +131,8 @@ def hamming_distance(text):
 
             matrix[y].append(distance)
 
-
-    print(matrix)
     return matrix
+
 
 def levenshtein_distance(text):
     """
@@ -198,16 +200,18 @@ def upgma_algorithm(matrix):
             minimum = 99999
             min_list = [1, 2]
             for i in range(1, len(matrix)):
-                for k in range(1, len(matrix[i])): # returns the smallest possible number that does not lie on the diagonal.
+                for k in range(1, len(matrix[
+                                          i])):  # returns the smallest possible number that does not lie on the diagonal.
                     if minimum > matrix[i][k] >= 0 and i != k:
                         min_list[0] = i
                         min_list[1] = k
                         minimum = matrix[min_list[0]][min_list[1]]
             min_list.sort()
-            updated_list = [matrix[min_list[0]][0]+"+"+matrix[min_list[1]][0]]
-            proportional = len(updated_list[0].split("+"))  #determine the Weight
+            updated_list = [matrix[min_list[0]][0] + "+" + matrix[min_list[1]][0]]
+            proportional = len(updated_list[0].split("+"))  # determine the Weight
             proportional1 = len(matrix[min_list[1]][0].split("+"))
-            for i in range(1, len(matrix[min_list[0]])): # calculates new column of the fusioned column/line
+            for i in range(1, len(
+                    matrix[min_list[0]])):  # calculates new column of the fusioned column/line
                 if matrix[min_list[0]][i] == 0 or matrix[i][min_list[1]] == 0:
                     continue
                 else:
@@ -215,9 +219,9 @@ def upgma_algorithm(matrix):
             updated_list.insert(min_list[0], 0)
 
             my_dict = {
-                "parent" : parent,
-                "child1" : (parent_matrix[min_list[0]][0],0),
-                "child2" : (parent_matrix[min_list[1]][0],0)
+                "parent": parent,
+                "child1": (parent_matrix[min_list[0]][0], 0),
+                "child2": (parent_matrix[min_list[1]][0], 0)
             }
             result.append(my_dict)
             parent_matrix[0].pop(min_list[0])
@@ -241,9 +245,9 @@ def upgma_algorithm(matrix):
                 matrix[i].pop(min_list[1])
         else:
             my_dict = {
-                "parent":parent,
-                "child1":(parent_matrix[0][1],0),
-                "child2":(parent_matrix[2][0],0)
+                "parent": parent,
+                "child1": (parent_matrix[0][1], 0),
+                "child2": (parent_matrix[2][0], 0)
             }
             result.append(my_dict)
 
@@ -270,22 +274,38 @@ def neighbor_joining_algorithm(matrix):
         divergence_matrix = divergence_matrix_template.copy()
         minimal_values = []
         for i in range(1, len(divergence_matrix)):
-            all_vals = set(divergence_matrix[i][1:])
+            all_vals = divergence_matrix[i][1:]
+            min_val = min(all_vals)
 
-            # construct dict with lowest value for each row,
-            # keep x and y indices of distance in matrix
-            try:
+            # create list of indices with multiple minimal values in a row
+            multiple_min_values = [k for k, j in enumerate(all_vals) if j == min_val]
+
+            # remove identical sequence value, if it is the only minimum
+            if len(multiple_min_values) == 1:
+                all_vals.remove(min_val)
+                min_val = min(all_vals)
+                # +1 to account for index in divergence matrix that still has sequence names
+                multiple_min_values = [k for k, j in enumerate(divergence_matrix[i]) if
+                                       j == min_val]
+
+            min_dict = {}
+            # only one true minimum
+            if len(multiple_min_values) == 1:
                 min_dict = {
-                    "value": int(sorted(all_vals)[1]),
-                    "y": divergence_matrix.index(divergence_matrix[i]),
-                    "x": divergence_matrix[i].index(sorted(all_vals)[1])
+                    "value": int(divergence_matrix[i][multiple_min_values[0]]),
+                    "y": i,
+                    "x": multiple_min_values[0]
                 }
-            except Exception:
-                min_dict = {
-                    "value": int(sorted(all_vals)[0]),
-                    "y": divergence_matrix.index(divergence_matrix[i]),
-                    "x": divergence_matrix[i].index(sorted(all_vals)[0])
-                }
+            # multiple minimums, check if it is an identical sequence
+            else:
+                for minimal_value in multiple_min_values:
+                    # identical sequences have the same index in row and column, those have to ignored
+                    if minimal_value != i:
+                        min_dict = {
+                            "value": int(divergence_matrix[i][minimal_value]),
+                            "y": i,
+                            "x": minimal_value
+                        }
 
             minimal_values.append(min_dict)
 
@@ -350,7 +370,8 @@ def neighbor_joining_algorithm(matrix):
             else:
                 row.pop(x)
                 row.pop(y)
-
+        # replace last value on diagonal with 0
+        matrix[-1][-1] = 0
         u_counter += 1
 
     return all_neighbours
@@ -372,7 +393,7 @@ def make_divergence_matrix(matrix_template):
 
     for y in range(1, len(matrix)):
         divergent_row = [matrix[y][0]]
-        for x in range(1, len(matrix[y]) - 1):
+        for x in range(1, len(matrix[y])):
             try:
                 # R_i sum of all distances for sequence1
                 sum1 = sum(matrix[y][1:])
@@ -400,6 +421,8 @@ def construct_newick_string(all_neighbours):
 
     newick_string_as_list = []
 
+    #artificial_root_created = False
+
     # holds nodes that are only parent nodes, and their children
     only_parents = keep_only_parents(all_neighbours)
     for pair in only_parents:
@@ -411,6 +434,16 @@ def construct_newick_string(all_neighbours):
         newick_string_as_list.append(pair["parent"])
         newick_string_as_list.append(",")
 
+    #if not artificial_root_created:
+    # remove first parent
+    newick_string_as_list.pop(5)
+    # remove second parent
+    newick_string_as_list.pop(-2)
+    # remove first closed bracket
+    newick_string_as_list.pop(4)
+    newick_string_as_list.insert(5, "(")
+    newick_string_as_list.insert(-1, ")")
+    artificial_root_created = True
     # keep nodes that are parents as well as children of other nodes
     remaining_neighbours = [pair for pair in all_neighbours if pair not in only_parents]
 
@@ -444,6 +477,8 @@ def construct_newick_string(all_neighbours):
 
     newick_string = "".join(newick_string_as_list)
     final_newick_string = newick_string.removesuffix(",")
+    final_newick_string += "))"
+    final_newick_string = "(" + final_newick_string
     final_newick_string += ";"
     return final_newick_string
 
