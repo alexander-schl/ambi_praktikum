@@ -142,7 +142,7 @@ def levenshtein_distance(text):
     :return: list of lists
     """
     distance = 0
-    final_distanz = [[]]
+    final_distanz = [[]] #big matrix
     final_distanz[0].append("")
     for i in range(len(text)):
         final_distanz[0].append(text[i][0])
@@ -150,7 +150,7 @@ def levenshtein_distance(text):
         final_distanz[i + 1].append(text[i][0])
     for i in range(len(text)):  # initialization from x and y from the list
         for k in range(len(text)):
-            table = []
+            table = [] #small matrix
             len_x = len(text[i][1])
             len_y = len(text[k][1])
             if text[i][0] == text[k][0]:
@@ -164,7 +164,7 @@ def levenshtein_distance(text):
                     if y > 0:
                         table[y].append(y)
                 for y in range(1, len_y+1):
-                    for x in range(1, len_x+1):
+                    for x in range(1, len_x+1): #levenshtein distanz calculated
                         if text[i][1][x - 1] == text[k][1][y - 1]:
                             gap_cost = 0
                         else:
@@ -207,9 +207,9 @@ def upgma_algorithm(matrix):
                         min_list[1] = k
                         minimum = matrix[min_list[0]][min_list[1]]
             min_list.sort()
-            updated_list = [matrix[min_list[0]][0] + "+" + matrix[min_list[1]][0]]
-            proportional = len(updated_list[0].split("+"))  # determine the Weight
-            proportional1 = len(matrix[min_list[1]][0].split("+"))
+            updated_list = [matrix[min_list[0]][0] + "+" + matrix[min_list[1]][0]] # add the two columns names
+            proportional = len(updated_list[0].split("+"))  # determine the Weight current
+            proportional1 = len(matrix[min_list[1]][0].split("+")) # determine the Weight for the last matrix updated
             for i in range(1, len(
                     matrix[min_list[0]])):  # calculates new column of the fusioned column/line
                 if matrix[min_list[0]][i] == 0 or matrix[i][min_list[1]] == 0:
@@ -218,7 +218,7 @@ def upgma_algorithm(matrix):
                     updated_list.append((matrix[min_list[0]][i]*(proportional-1)+(matrix[i][min_list[1]])*proportional1)/proportional+proportional1)
             updated_list.insert(min_list[0], 0)
 
-            my_dict = {
+            my_dict = { #for the final dict
                 "parent": parent,
                 "child1": (parent_matrix[min_list[0]][0], 0),
                 "child2": (parent_matrix[min_list[1]][0], 0)
@@ -235,7 +235,7 @@ def upgma_algorithm(matrix):
             matrix.pop(min_list[0])
             matrix.insert(min_list[0], updated_list)
             matrix.pop(min_list[1])
-            copy_list = copy.copy(updated_list)
+            copy_list = copy.copy(updated_list) # change parent- and matrix
 
             for i in range(len(matrix)):
                 matrix[i].pop(min_list[0])
