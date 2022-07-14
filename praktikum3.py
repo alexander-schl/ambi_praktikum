@@ -74,7 +74,6 @@ def calc_viterbi_path(sequence, minus_model, plus_model, transitions):
     """
     minus_path = []
     plus_path = []
-    viterbi_path = []
     viterbi_path_str = ""
 
     # 1/2 because of two states
