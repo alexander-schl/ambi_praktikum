@@ -27,14 +27,14 @@ def menu():
                 start_time_upgma = time.time()
                 print("\nUPGMA-Newick-String (Hamming):")
                 upgma_h = upgma_algorithm(copy.deepcopy(hamming))
-                upgma_newick = construct_newick_string(upgma_h)
+                upgma_newick = construct_newick_string(upgma_h, True)
                 print(upgma_newick)
                 print("Laufzeit von UPGMA (Hamming): ", time.time() - start_time_upgma)
 
                 start_time_nj = time.time()
                 print("\nNeighbour-Joinig-Newick-String (Hamming):")
                 neighbours_h = neighbor_joining_algorithm(copy.deepcopy(hamming))
-                newick_neighbour = construct_newick_string(neighbours_h)
+                newick_neighbour = construct_newick_string(neighbours_h, False)
                 print(newick_neighbour)
                 print("Laufzeit von Neighbour Joining (Hamming): ", time.time() - start_time_nj)
 
@@ -44,14 +44,14 @@ def menu():
                 start_time_upgma = time.time()
                 print("\nUPGMA-Newick-String (Levenshtein):")
                 upgma_l = upgma_algorithm(copy.deepcopy(levenshtein))
-                upgma_newick = construct_newick_string(upgma_l)
+                upgma_newick = construct_newick_string(upgma_l, True)
                 print(upgma_newick)
                 print("Laufzeit von UPGMA (Levenshtein): ", time.time() - start_time_upgma)
 
                 start_time_nj = time.time()
                 print("\nNeighbour-Joinig-Newick-String (Levenshtein):")
                 neighbours_l = neighbor_joining_algorithm(copy.deepcopy(levenshtein))
-                newick_neighbour = construct_newick_string(neighbours_l)
+                newick_neighbour = construct_newick_string(neighbours_l, False)
                 print(newick_neighbour)
                 print("Laufzeit von Neighbour Joining (Levenshtein): ",
                       time.time() - start_time_nj)
@@ -408,7 +408,7 @@ def make_divergence_matrix(matrix_template):
     return divergence_matrix
 
 
-def construct_newick_string(all_neighbours):
+def construct_newick_string(all_neighbours, rooted):
     """
     Constructs a Newick string.
 
@@ -416,12 +416,11 @@ def construct_newick_string(all_neighbours):
         {'parent': 'name', 'child1': ('name_child1', distance_to_parent_node),
         'child2': ('name_child2', distance_to_parent_node)}
 
+    :param rooted: bool
     :return: str
     """
 
     newick_string_as_list = []
-
-    #artificial_root_created = False
 
     # holds nodes that are only parent nodes, and their children
     only_parents = keep_only_parents(all_neighbours)
@@ -434,16 +433,16 @@ def construct_newick_string(all_neighbours):
         newick_string_as_list.append(pair["parent"])
         newick_string_as_list.append(",")
 
-    #if not artificial_root_created:
-    # remove first parent
-    newick_string_as_list.pop(5)
-    # remove second parent
-    newick_string_as_list.pop(-2)
-    # remove first closed bracket
-    newick_string_as_list.pop(4)
-    newick_string_as_list.insert(5, "(")
-    newick_string_as_list.insert(-1, ")")
-    artificial_root_created = True
+    if not rooted:
+        # remove first parent
+        newick_string_as_list.pop(5)
+        # remove second parent
+        newick_string_as_list.pop(-2)
+        # remove first closed bracket
+        newick_string_as_list.pop(4)
+        newick_string_as_list.insert(5, "(")
+        newick_string_as_list.insert(-1, ")")
+
     # keep nodes that are parents as well as children of other nodes
     remaining_neighbours = [pair for pair in all_neighbours if pair not in only_parents]
 
