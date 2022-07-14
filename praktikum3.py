@@ -6,7 +6,7 @@ import random
 
 
 def menu():
-    calc_hidden_markov_model()
+    sequenz,state = calc_hidden_markov_model()
 
 
 def calc_hidden_markov_model():
@@ -24,17 +24,6 @@ def calc_hidden_markov_model():
               ["C", "0.171", "0.368", "0.274", "0.188"],
               ["T", "0.161", "0.339", "0.375", "0.125"],
               ["G", "0.079", "0.355", "0.384", "0.182"]]
-    """""
-    model = [["", "A", "C", "G", "T", "A", "C", "G", "T"],
-             ["A", "0.144", "0.219", "0.341", "0.096", "0.050", "0.050", "0.050", "0.050"],
-             ["C", "0.137", "0.294", "0.219", "0.150", "0.050", "0.050", "0.050", "0.050"],
-             ["G", "0.129", "0.271", "0.300", "0.100", "0.050", "0.050", "0.050", "0.050"],
-             ["T", "0.063", "0.284", "0.307", "0.146", "0.050", "0.050", "0.050", "0.050"],
-             ["A", "0.025", "0.025", "0.025", "0.025", "0.270", "0.184", "0.256", "0.189"],
-             ["C", "0.025", "0.025", "0.025", "0.025", "0.290", "0.268", "0.070", "0.272"],
-             ["G", "0.025", "0.025", "0.025", "0.025", "0.223", "0.221", "0.268", "0.187"],
-             ["T", "0.025", "0.025", "0.025", "0.025", "0.159", "0.215", "0.263", "0.263"]]
-    """
     steady = 1  # which model
     if random.randint(1, 2) == 2:
         steady = 2
@@ -74,9 +63,11 @@ def calc_hidden_markov_model():
                     start = i
                     break
         k -= 1
-        print(k)
-    print(sequenz)
-    print(state)
+    s = "".join(sequenz)
+    st = "".join(state)
+    return  s,st
+    print(s)
+    print(st)
 
 
 def calc_viterbi_path():
@@ -163,6 +154,7 @@ def calc_viterbi_path(sequence, minus_model, plus_model, transitions):
 
 
 if __name__ == "__main__":
+    """""
     # order of values: ACGT
     minus_model = [[0.300, 0.205, 0.285, 0.210],
                    [0.322, 0.298, 0.078, 0.302],
@@ -181,5 +173,5 @@ if __name__ == "__main__":
     sequence = "GCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTCGCGGGCGTAGCTCAGAGGTAGAGCACCTGCTTCCCAAGCAGGAGGTCGCCGGTTCGAGTC"
 
     print("Viterbi path:", calc_viterbi_path(sequence, minus_model, plus_model, transitions))
-
-    # menu()
+    """""
+    menu()
