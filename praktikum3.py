@@ -3,10 +3,6 @@ import math
 import random
 
 
-def menu():
-    sequenz, state = calc_hidden_markov_model()
-
-
 def calc_hidden_markov_model():
     k = 999
     sequenz = []
@@ -64,13 +60,6 @@ def calc_hidden_markov_model():
     s = "".join(sequenz)
     st = "".join(state)
     return s, st
-    print(s)
-    print(st)
-
-
-def calc_viterbi_path():
-    pass
-    pass
 
 
 def calc_viterbi_path(sequence, minus_model, plus_model, transitions):
@@ -97,7 +86,6 @@ def calc_viterbi_path(sequence, minus_model, plus_model, transitions):
     plus_path.append(("+", math.log(starting_state_prob * starting_emission_prob, 2)))
 
     for char_index in range(1, len(sequence)):
-        print(char_index)
         # default assume A
         i = 0
         if sequence[char_index] == "C":
@@ -141,16 +129,15 @@ def calc_viterbi_path(sequence, minus_model, plus_model, transitions):
         else:
             plus_path.append(("-", minus_to_plus_prob, 2))
 
-        # get viterbi path with higher end probability
-        if minus_path[-1] >= plus_path[-1]:
-            viterbi_path = copy.deepcopy(minus_path)
-        else:
-            viterbi_path = copy.deepcopy(plus_path)
+    # get viterbi path with higher end probability
+    if minus_path[-1] >= plus_path[-1]:
+        viterbi_path = copy.deepcopy(minus_path)
+    else:
+        viterbi_path = copy.deepcopy(plus_path)
 
     for state in viterbi_path:
         viterbi_path_str += state[0]
 
-    print("viterbi")
     return viterbi_path_str
 
 
@@ -191,7 +178,7 @@ if __name__ == "__main__":
                           [0.161, 0.339, 0.375, 0.125]]
 
     # order of values: minus, plus
-    transitions = [[0.9, 0.1], [0.2, 0.8]]
+    transitions = [[0.9, 0.9], [0.9, 0.9]]
 
 
     viterbi_path = calc_viterbi_path(sequence, minus_model_viterbi, plus_model_viterbi, transitions)
@@ -201,5 +188,3 @@ if __name__ == "__main__":
 
     print("Error rate: ", calc_error_rate(real_states, viterbi_path))
 
-
-    # menu()
