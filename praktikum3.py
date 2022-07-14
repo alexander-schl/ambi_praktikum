@@ -178,7 +178,7 @@ if __name__ == "__main__":
                           [0.161, 0.339, 0.375, 0.125]]
 
     # order of values: minus, plus
-    transitions = [[0.9, 0.9], [0.9, 0.9]]
+    transitions = [[0.9, 0.1], [0.2, 0.8]]
 
 
     viterbi_path = calc_viterbi_path(sequence, minus_model_viterbi, plus_model_viterbi, transitions)
