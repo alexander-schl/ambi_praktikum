@@ -4,7 +4,7 @@ import random
 
 
 def calc_hidden_markov_model():
-    k = 999
+    k = 99
     sequenz = []
     state = []
     symbol = ["", "-", "+"]
@@ -107,8 +107,9 @@ def calc_viterbi_path(sequence, minus_model, plus_model, transitions):
         minus_to_minus_prob = minus_path[char_index - 1][1] + math.log(
             transitions[0][0] * minus_model[pci][
                 i], 2)
+        # use 0.25 for emission prop if state switches
         plus_to_minus_prob = plus_path[char_index - 1][1] + math.log(
-            transitions[1][0] * plus_model[pci][i], 2)
+            transitions[1][0] * 0.25, 2)
 
         if minus_to_minus_prob >= plus_to_minus_prob:
             minus_path.append(("-", minus_to_minus_prob, 2))
@@ -116,9 +117,9 @@ def calc_viterbi_path(sequence, minus_model, plus_model, transitions):
             minus_path.append(("+", plus_to_minus_prob, 2))
 
         # calc max probability for plus path with log
+        # use 0.25 for emission prop if state switches
         minus_to_plus_prob = minus_path[char_index - 1][1] + math.log(
-            transitions[0][1] * minus_model[pci][
-                i], 2)
+            transitions[0][1] * 0.25, 2)
         plus_to_plus_prob = plus_path[char_index - 1][1] + math.log(
             transitions[1][1] * plus_model[pci][
                 i], 2)
@@ -128,11 +129,19 @@ def calc_viterbi_path(sequence, minus_model, plus_model, transitions):
         else:
             plus_path.append(("-", minus_to_plus_prob, 2))
 
-    # get viterbi path with higher end probability
+    # do backtracking
+    viterbi_path = []
     if minus_path[-1] >= plus_path[-1]:
-        viterbi_path = copy.deepcopy(minus_path)
+        viterbi_path.append(minus_path[-1])
     else:
-        viterbi_path = copy.deepcopy(plus_path)
+        viterbi_path.append(plus_path[-1])
+
+    for i in range(len(plus_path) - 2, -1, -1):
+        # insert most probable state in front according to pointer
+        if viterbi_path[0][0] == "-":
+            viterbi_path.insert(0, minus_path[i])
+        else:
+            viterbi_path.insert(0, plus_path[i])
 
     for state in viterbi_path:
         viterbi_path_str += state[0]
@@ -167,23 +176,22 @@ if __name__ == "__main__":
     # order of values: ACGT
     minus_model_viterbi = [[0.300, 0.205, 0.285, 0.210],
                            [0.322, 0.298, 0.078, 0.302],
-                           [0.177, 0.239, 0.292, 0.292],
-                           [0.248, 0.246, 0.298, 0.208]]
+                           [0.248, 0.246, 0.298, 0.208],
+                           [0.177, 0.239, 0.292, 0.292]]
 
     # order of values: ACGT
     plus_model_viterbi = [[0.180, 0.274, 0.426, 0.120],
                           [0.171, 0.368, 0.274, 0.188],
-                          [0.079, 0.355, 0.384, 0.182],
-                          [0.161, 0.339, 0.375, 0.125]]
+                          [0.161, 0.339, 0.375, 0.125],
+                          [0.079, 0.355, 0.384, 0.182]]
 
     # order of values: minus, plus
     transitions = [[0.9, 0.1], [0.2, 0.8]]
 
-
-    viterbi_path = calc_viterbi_path(sequence, minus_model_viterbi, plus_model_viterbi, transitions)
+    viterbi_path = calc_viterbi_path(sequence, minus_model_viterbi, plus_model_viterbi,
+                                     transitions)
     print("Sequence: ", sequence)
     print("Real states: ", real_states)
     print("Viterbi path:", viterbi_path)
 
     print("Error rate: ", calc_error_rate(real_states, viterbi_path))
-
