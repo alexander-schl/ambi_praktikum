@@ -210,12 +210,13 @@ def upgma_algorithm(matrix):
             updated_list = [matrix[min_list[0]][0] + "+" + matrix[min_list[1]][0]] # add the two columns names
             proportional = len(updated_list[0].split("+"))  # determine the Weight current
             proportional1 = len(matrix[min_list[1]][0].split("+")) # determine the Weight for the last matrix updated
+            proportional2 = len(matrix[min_list[0][0].split("+")])
             for i in range(1, len(
                     matrix[min_list[0]])):  # calculates new column of the fusioned column/line
                 if matrix[min_list[0]][i] == 0 or matrix[i][min_list[1]] == 0:
                     continue
                 else:
-                    updated_list.append((matrix[min_list[0]][i]*(proportional-1)+(matrix[i][min_list[1]])*proportional1)/proportional+proportional1)
+                    updated_list.append((matrix[min_list[0]][i]*(proportional2)+(matrix[i][min_list[1]])*proportional1)/(proportional2+proportional1))
             updated_list.insert(min_list[0], 0)
 
             my_dict = { #for the final dict
