@@ -3,8 +3,10 @@ import math
 import random
 
 
+
 def calc_hidden_markov_model():
-    k = 99
+    k = 999
+    change = ["0.9", "0.1", "0.8", "0.2"]
     sequenz = []
     state = []
     symbol = ["", "-", "+"]
@@ -21,37 +23,51 @@ def calc_hidden_markov_model():
     steady = 1  # which model
     if random.randint(1, 2) == 2:
         steady = 2
-    start = random.randint(1, 4)
+    start = random.randint(1, 4)    #random choice for the first base
     if sequenz == 1:
         sequenz.append(model1[0][start])
     else:
         sequenz.append(model2[0][start])
     state.append(symbol[steady])
     while k > 0:
-        number = 0
-        if steady == 1:
+        if steady == 1:             #decide which modell is used
             if random.random() > 0.9:
                 steady = 2
+                switch = change[1]
             else:
                 steady = 1
+                switch = change[0]
         else:
             if random.random() > 0.8:
-                steady = 2
-            else:
                 steady = 1
+                switch = change[3]
+            else:
+                steady = 2
+                switch = change[2]
         add = 0
-        end = random.random()
+        if switch == "0.9" or switch == "0.8":
+            end = random.random()
+        elif switch == "0.1":
+            end = random.uniform(0.0, 0.1)
+        else:
+            end = random.uniform(0.0, 0.2)
         state.append(symbol[steady])
         if steady == 1:
-            for i in range(1, len(model1[start])):
-                add += float(model1[start][i])
+            for i in range(1, len(model1[start])):  #sum the line when the same model is used or sum the same value
+                if switch == "0.9":
+                    add += float(model1[start][i])
+                else:
+                    add += float(switch)*0.25
                 if end <= add:
                     sequenz.append(model1[0][i])
                     start = i
                     break
         else:
             for i in range(1, len(model2[start])):
-                add += float(model2[start][i])
+                if switch == "0.8":
+                    add += float(model2[start][i])
+                else:
+                    add += float(switch)*0.25
                 if end <= add:
                     sequenz.append(model2[0][i])
                     start = i
@@ -195,3 +211,4 @@ if __name__ == "__main__":
     print("Viterbi path:", viterbi_path)
 
     print("Error rate: ", calc_error_rate(real_states, viterbi_path))
+
