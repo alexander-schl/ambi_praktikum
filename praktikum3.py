@@ -1,36 +1,120 @@
-import copy
 import math
 import random
+import os
+import copy
 
 
+def menu():
+    print("AMBI Praktikum Aufgabe Nr. 3 von Alexander Schleiter und Tim Stadager")
+    while True:
+        try:
+            file = input("Geben Sie den Pfad einer Datei an, die Sie einlesen möchten:")
+            if os.path.isfile(file):
+                # read matrices with emission probabilities
+                matrix1, matrix2 = read_file(file)
 
-def calc_hidden_markov_model():
+                # get data from hmm
+                sequence, real_states = calc_hidden_markov_model(matrix1, matrix2)
+
+                # order of values: ACGT
+                # minus_model_viterbi = [[0.300, 0.205, 0.285, 0.210],
+                #                        [0.322, 0.298, 0.078, 0.302],
+                #                        [0.248, 0.246, 0.298, 0.208],
+                #                        [0.177, 0.239, 0.292, 0.292]]
+                #
+                # # order of values: ACGT
+                # plus_model_viterbi = [[0.180, 0.274, 0.426, 0.120],
+                #                       [0.171, 0.368, 0.274, 0.188],
+                #                       [0.161, 0.339, 0.375, 0.125],
+                #                       [0.079, 0.355, 0.384, 0.182]]
+
+                # order of values: minus, plus
+                transitions = [[0.9, 0.1], [0.2, 0.8]]
+                sequence = "GCACGTGCTCTTCTCCAGGCTGGCACCTAAGCTGGGTGCGCCACGCCGAAGTTTGCAGATATCTCCCAACTTTTGCGGCAAGAGGCCGACCCAAGAGGTGGCCCAATCTAGCTGCGGGAGGCCTTTGATTGCAGAAGGAGACTACCCCCCGCCTTAAGATCTCAAGATGAAGACACCACCCTCCACCGGGGCAGTCTACTGAACGGACCCTCAAGGTACTGGCCTCTTTCAAGTGATCCATGCAAAAGGGGGATTGTGGCTGCCCCAGCGACGTCAGACCGTTGCGACCTCGGAGCAAATGGGCTCGGCTCCATTCCCAGTGCAAGTGGAGTCCCCTTCCGTGCATGGCAGGGTAAGCTTGAAATTTGCTTGCAAGTCCACCGAGCACAGAGTGAACCATTGGGTTTAGAGGGAGGAGGCCTAGTGAATACCGGCGGCAGAACTCCTTCTAACAGGGCTTTGGGCAAGGGGTTTGGCTTCTAAACTTTAGCCCGATGATCGTGGGTTGGATAGTGGACCCTTACATTCACTACTGAGCTTTGTGTGGCTTGCAGCATCAGGAGCAGTTTGCCTGCTAACTCCTTCAAGTAGTCCACCTCGGTCGCCCATCGGCGCTCCGCTGTTATTTGTAAGGCAATTGCATCTTTTAACGCGCCATGTAGGTGTAGGGCCCCAGGTAGTGGTGCGAAAGCGAGCATCCACGTTGGGAAGAGTACCCCATCCTAATTCGTACTCGAGGAGGGACAGCTATCATTAAGGTGTTTGATTTTGGCACTCTCATTCTTCATTTCTGTGAGAGGAAAAATTCAGTGTTGGTGGCTCAGCGCCGTGGAGTCTCCGTGACAAACCCAAACTTAGGGCTTAAGCACTAGTCGAATAGCCACGAGCCGCGTGAAAGTATTTTGGGTCTGCCTGCGCAGTAGACACGTGGTGGTCCCGGCGTCGCCGAATCAGGGTTCAGTTGAAGTTCAACAGATACCGGCAGCGACCGGCACCTTGT"
+                viterbi_path = calc_viterbi_path(sequence, matrix1, matrix2,
+                                                 transitions)
+                print("Sequence: ", sequence)
+                #print("Real states: ", real_states)
+                print("Viterbi path:", viterbi_path)
+
+                print("Error rate: ", calc_error_rate(real_states, viterbi_path))
+            else:
+                print("Der angegebene Pfad konnte nicht gefunden werden. Versuchen Sie es erneut.")
+        except FileNotFoundError:
+            print("Der angegebene Pfad konnte nicht gefunden werden. Versuchen Sie es erneut.")
+
+
+def read_file(file):
+    """
+    Reads file with data for 2 matrices.
+
+    :param data: file .txt
+    :return: two list of list
+    """
+    matrix1 = []
+    matrix2 = []
+
+    if os.path.isfile(file):
+        with open(file, "r", encoding="utf-8") as file:
+            text = file.read().splitlines()
+            text_without_line_break = []
+            for line in text:
+                line_arr = line.split(",")
+                text_without_line_break.append([float(x) for x in line_arr])
+
+            if len(text_without_line_break) == 8:
+                for i in range(4):
+                    matrix1.append(text_without_line_break[i])
+                for i in range(4, 8):
+                    matrix2.append(text_without_line_break[i])
+            else:
+                print("File must be 8 lines long!")
+    else:
+        print("File not found...")
+
+    return matrix1, matrix2
+
+
+def calc_hidden_markov_model(matrix1, matrix2):
     k = 999
     change = ["0.9", "0.1", "0.8", "0.2"]
     sequenz = []
     state = []
     symbol = ["", "-", "+"]
-    model1 = [["", "A", "C", "G", "T"],
-              ["A", "0.300", "0.205", "0.285", "0.210"],
-              ["C", "0.322", "0.298", "0.078", "0.302"],
-              ["T", "0.248", "0.246", "0.298", "0.208"],
-              ["G", "0.177", "0.239", "0.292", "0.292"]]
-    model2 = [["", "A", "C", "G", "T"],
-              ["A", "0.180", "0.274", "0.426", "0.120"],
-              ["C", "0.171", "0.368", "0.274", "0.188"],
-              ["T", "0.161", "0.339", "0.375", "0.125"],
-              ["G", "0.079", "0.355", "0.384", "0.182"]]
+
+    model1 = copy.deepcopy(matrix1)
+    model2 = copy.deepcopy(matrix2)
+
+    # insert ACTG at beginning of each line
+    actg = ["A", "C", "T", "G"]
+    for i in range(len(model1)):
+        model1[i].insert(0, actg[i])
+        model2[i].insert(0, actg[i])
+
+    model1.insert(0, ["", "A", "C", "G", "T"])
+    model2.insert(0, ["", "A", "C", "G", "T"])
+
+    # model1 = [["", "A", "C", "G", "T"],
+    #           ["A", "0.300", "0.205", "0.285", "0.210"],
+    #           ["C", "0.322", "0.298", "0.078", "0.302"],
+    #           ["T", "0.248", "0.246", "0.298", "0.208"],
+    #           ["G", "0.177", "0.239", "0.292", "0.292"]]
+    # model2 = [["", "A", "C", "G", "T"],
+    #           ["A", "0.180", "0.274", "0.426", "0.120"],
+    #           ["C", "0.171", "0.368", "0.274", "0.188"],
+    #           ["T", "0.161", "0.339", "0.375", "0.125"],
+    #           ["G", "0.079", "0.355", "0.384", "0.182"]]
     steady = 1  # which model
     if random.randint(1, 2) == 2:
         steady = 2
-    start = random.randint(1, 4)    #random choice for the first base
+    start = random.randint(1, 4)  # random choice for the first base
     if sequenz == 1:
         sequenz.append(model1[0][start])
     else:
         sequenz.append(model2[0][start])
     state.append(symbol[steady])
     while k > 0:
-        if steady == 1:             #decide which modell is used
+        if steady == 1:  # decide which modell is used
             if random.random() > 0.9:
                 steady = 2
                 switch = change[1]
@@ -53,11 +137,12 @@ def calc_hidden_markov_model():
             end = random.uniform(0.0, 0.2)
         state.append(symbol[steady])
         if steady == 1:
-            for i in range(1, len(model1[start])):  #sum the line when the same model is used or sum the same value
+            for i in range(1, len(model1[
+                                      start])):  # sum the line when the same model is used or sum the same value
                 if switch == "0.9":
                     add += float(model1[start][i])
                 else:
-                    add += float(switch)*0.25
+                    add += float(switch) * 0.25
                 if end <= add:
                     sequenz.append(model1[0][i])
                     start = i
@@ -67,7 +152,7 @@ def calc_hidden_markov_model():
                 if switch == "0.8":
                     add += float(model2[start][i])
                 else:
-                    add += float(switch)*0.25
+                    add += float(switch) * 0.25
                 if end <= add:
                     sequenz.append(model2[0][i])
                     start = i
@@ -186,29 +271,4 @@ def calc_error_rate(seq1, seq2):
 
 
 if __name__ == "__main__":
-    # get data from hmm
-    sequence, real_states = calc_hidden_markov_model()
-
-    # order of values: ACGT
-    minus_model_viterbi = [[0.300, 0.205, 0.285, 0.210],
-                           [0.322, 0.298, 0.078, 0.302],
-                           [0.248, 0.246, 0.298, 0.208],
-                           [0.177, 0.239, 0.292, 0.292]]
-
-    # order of values: ACGT
-    plus_model_viterbi = [[0.180, 0.274, 0.426, 0.120],
-                          [0.171, 0.368, 0.274, 0.188],
-                          [0.161, 0.339, 0.375, 0.125],
-                          [0.079, 0.355, 0.384, 0.182]]
-
-    # order of values: minus, plus
-    transitions = [[0.9, 0.1], [0.2, 0.8]]
-
-    viterbi_path = calc_viterbi_path(sequence, minus_model_viterbi, plus_model_viterbi,
-                                     transitions)
-    print("Sequence: ", sequence)
-    print("Real states: ", real_states)
-    print("Viterbi path:", viterbi_path)
-
-    print("Error rate: ", calc_error_rate(real_states, viterbi_path))
-
+    menu()
