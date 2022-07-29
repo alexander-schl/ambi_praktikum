@@ -12,31 +12,37 @@ def menu():
             if os.path.isfile(file):
                 # read matrices with emission probabilities
                 matrix1, matrix2 = read_file(file)
+                file = input("Geben Sie den Pfad einer Datei an, die Sie einlesen möchten:")
+                if os.path.isfile(file):
+                    #read file with transition probabilities
+                    transitions = read_file(file)
+                    #transitions = [[0.9, 0.1], [0.8, 0.2]]
+                    # get data from hmm
+                    sequence, real_states = calc_hidden_markov_model(matrix1, matrix2, transitions)
 
-                # get data from hmm
-                sequence, real_states = calc_hidden_markov_model(matrix1, matrix2)
+                    # order of values: ACGT
+                    # minus_model_viterbi = [[0.300, 0.205, 0.285, 0.210],
+                    #                        [0.322, 0.298, 0.078, 0.302],
+                    #                        [0.248, 0.246, 0.298, 0.208],
+                    #                        [0.177, 0.239, 0.292, 0.292]]
+                    #
+                    # # order of values: ACGT
+                    # plus_model_viterbi = [[0.180, 0.274, 0.426, 0.120],
+                    #                       [0.171, 0.368, 0.274, 0.188],
+                    #                       [0.161, 0.339, 0.375, 0.125],
+                    #                       [0.079, 0.355, 0.384, 0.182]]
 
-                # order of values: ACGT
-                # minus_model_viterbi = [[0.300, 0.205, 0.285, 0.210],
-                #                        [0.322, 0.298, 0.078, 0.302],
-                #                        [0.248, 0.246, 0.298, 0.208],
-                #                        [0.177, 0.239, 0.292, 0.292]]
-                #
-                # # order of values: ACGT
-                # plus_model_viterbi = [[0.180, 0.274, 0.426, 0.120],
-                #                       [0.171, 0.368, 0.274, 0.188],
-                #                       [0.161, 0.339, 0.375, 0.125],
-                #                       [0.079, 0.355, 0.384, 0.182]]
+                    # order of values: minus, plus
+                    #transitions = [[0.9, 0.1], [0.2, 0.8]]
+                    viterbi_path = calc_viterbi_path(sequence, matrix1, matrix2,
+                                                     transitions)
+                    print("Sequence: ", sequence)
+                    #print("Real states: ", real_states)
+                    print("Viterbi path:", viterbi_path)
 
-                # order of values: minus, plus
-                transitions = [[0.9, 0.1], [0.2, 0.8]]
-                viterbi_path = calc_viterbi_path(sequence, matrix1, matrix2,
-                                                 transitions)
-                print("Sequence: ", sequence)
-                #print("Real states: ", real_states)
-                print("Viterbi path:", viterbi_path)
-
-                print("Error rate: ", calc_error_rate(real_states, viterbi_path))
+                    print("Error rate: ", calc_error_rate(real_states, viterbi_path))
+                else:
+                    print("Der angegebene Pfad konnte nicht gefunden werden. Versuchen sie es erneut")
             else:
                 print("Der angegebene Pfad konnte nicht gefunden werden. Versuchen Sie es erneut.")
         except FileNotFoundError:
@@ -50,6 +56,8 @@ def read_file(file):
     :param data: file .txt
     :return: two list of list
     """
+    probabilities = [[], []]
+    transitions = []
     matrix1 = []
     matrix2 = []
 
@@ -60,23 +68,40 @@ def read_file(file):
             for line in text:
                 line_arr = line.split(",")
                 text_without_line_break.append([float(x) for x in line_arr])
-
-            if len(text_without_line_break) == 8:
-                for i in range(4):
-                    matrix1.append(text_without_line_break[i])
-                for i in range(4, 8):
-                    matrix2.append(text_without_line_break[i])
+            if len(text) > 1:
+                if len(text_without_line_break) == 8:
+                    for i in range(4):
+                        matrix1.append(text_without_line_break[i])
+                    for i in range(4, 8):
+                        matrix2.append(text_without_line_break[i])
+                else:
+                    print("File must be 8 lines long!")
             else:
-                print("File must be 8 lines long!")
+                for i in range(len(text_without_line_break[0])):
+                    if i <= 1:
+                        probabilities[0].append(text_without_line_break[0][i])
+                    else:
+                        probabilities[1].append(text_without_line_break[0][i])
+                print(probabilities)
+                for i in range(len(probabilities)):
+                    if probabilities[i][0] < probabilities[i][0]:
+                        print("The Firsts values must be bigger than the second")
+                        break
+                    elif probabilities[i][0]+probabilities[i][1] != 1:
+                        print("The Transitions must sum up to one")
+                        break
+                    else:
+                        transitions.append(probabilities[i])
+                        if i == 1:
+                            return transitions
     else:
         print("File not found...")
 
     return matrix1, matrix2
 
 
-def calc_hidden_markov_model(matrix1, matrix2):
+def calc_hidden_markov_model(matrix1, matrix2,change):
     k = 999
-    change = ["0.9", "0.1", "0.8", "0.2"]
     sequenz = []
     state = []
     symbol = ["", "-", "+"]
@@ -113,32 +138,32 @@ def calc_hidden_markov_model(matrix1, matrix2):
         sequenz.append(model2[0][start])
     state.append(symbol[steady])
     while k > 0:
-        if steady == 1:  # decide which modell is used
-            if random.random() > 0.9:
+        if steady == 1:  # decide which model is used
+            if random.random() > change[0][0]:
                 steady = 2
-                switch = change[1]
+                switch = change[0][1]
             else:
                 steady = 1
-                switch = change[0]
+                switch = change[0][0]
         else:
-            if random.random() > 0.8:
+            if random.random() > change[1][0]:
                 steady = 1
-                switch = change[3]
+                switch = change[0][1]
             else:
                 steady = 2
-                switch = change[2]
+                switch = change[0][0]
         add = 0
-        if switch == "0.9" or switch == "0.8":
+        if switch == change[0][0] or switch == change[1][0]:
             end = random.random()
-        elif switch == "0.1":
-            end = random.uniform(0.0, 0.1)
+        elif switch == change[0][1]:
+            end = random.uniform(0.0, change[0][1]*4)
         else:
-            end = random.uniform(0.0, 0.2)
+            end = random.uniform(0.0, change[1][1]*4)
         state.append(symbol[steady])
         if steady == 1:
             for i in range(1, len(model1[
-                                      start])):  # sum the line when the same model is used or sum the same value
-                if switch == "0.9":
+                                      start])):  # sum the line when the same model is used or sum the same value if the model does not change
+                if switch == change[0][0]:
                     add += float(model1[start][i])
                 else:
                     add += float(switch) * 0.25
@@ -148,7 +173,7 @@ def calc_hidden_markov_model(matrix1, matrix2):
                     break
         else:
             for i in range(1, len(model2[start])):
-                if switch == "0.8":
+                if switch == change[1][0]:
                     add += float(model2[start][i])
                 else:
                     add += float(switch) * 0.25
