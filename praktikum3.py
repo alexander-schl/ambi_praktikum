@@ -16,24 +16,9 @@ def menu():
                 if os.path.isfile(file):
                     #read file with transition probabilities
                     transitions = read_file(file)
-                    #transitions = [[0.9, 0.1], [0.8, 0.2]]
                     # get data from hmm
                     sequence, real_states = calc_hidden_markov_model(matrix1, matrix2, transitions)
 
-                    # order of values: ACGT
-                    # minus_model_viterbi = [[0.300, 0.205, 0.285, 0.210],
-                    #                        [0.322, 0.298, 0.078, 0.302],
-                    #                        [0.248, 0.246, 0.298, 0.208],
-                    #                        [0.177, 0.239, 0.292, 0.292]]
-                    #
-                    # # order of values: ACGT
-                    # plus_model_viterbi = [[0.180, 0.274, 0.426, 0.120],
-                    #                       [0.171, 0.368, 0.274, 0.188],
-                    #                       [0.161, 0.339, 0.375, 0.125],
-                    #                       [0.079, 0.355, 0.384, 0.182]]
-
-                    # order of values: minus, plus
-                    #transitions = [[0.9, 0.1], [0.2, 0.8]]
                     viterbi_path = calc_viterbi_path(sequence, matrix1, matrix2,
                                                      transitions)
                     print("Sequence: ", sequence)
@@ -99,7 +84,12 @@ def read_file(file):
     return matrix1, matrix2
 
 
-def calc_hidden_markov_model(matrix1, matrix2,change):
+def calc_hidden_markov_model(matrix1, matrix2, change2):
+    change1 = copy.deepcopy(change2)
+    change = change1
+    change[1][1] = change1[1][0]
+    change[1][0] = float(1-change1[1][1])
+
     k = 999
     sequenz = []
     state = []
@@ -117,16 +107,6 @@ def calc_hidden_markov_model(matrix1, matrix2,change):
     model1.insert(0, ["", "A", "C", "G", "T"])
     model2.insert(0, ["", "A", "C", "G", "T"])
 
-    # model1 = [["", "A", "C", "G", "T"],
-    #           ["A", "0.300", "0.205", "0.285", "0.210"],
-    #           ["C", "0.322", "0.298", "0.078", "0.302"],
-    #           ["T", "0.248", "0.246", "0.298", "0.208"],
-    #           ["G", "0.177", "0.239", "0.292", "0.292"]]
-    # model2 = [["", "A", "C", "G", "T"],
-    #           ["A", "0.180", "0.274", "0.426", "0.120"],
-    #           ["C", "0.171", "0.368", "0.274", "0.188"],
-    #           ["T", "0.161", "0.339", "0.375", "0.125"],
-    #           ["G", "0.079", "0.355", "0.384", "0.182"]]
     steady = 1  # which model
     if random.randint(1, 2) == 2:
         steady = 2
