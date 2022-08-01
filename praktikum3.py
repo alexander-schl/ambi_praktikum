@@ -8,13 +8,15 @@ def menu():
     print("AMBI Praktikum Aufgabe Nr. 3 von Alexander Schleiter und Tim Stadager")
     while True:
         try:
-            file = input("Geben Sie den Pfad einer Datei an, die Sie einlesen möchten:")
+            file = input(
+                "Geben Sie den Pfad einer Datei mit Emissionswahrscheinlichkeiten an, die Sie einlesen möchten:")
             if os.path.isfile(file):
                 # read matrices with emission probabilities
                 matrix1, matrix2 = read_file(file)
-                file = input("Geben Sie den Pfad einer Datei an, die Sie einlesen möchten:")
+                file = input(
+                    "Geben Sie den Pfad einer Datei mit Übergangswahrscheinlichkeiten an, die Sie einlesen möchten:")
                 if os.path.isfile(file):
-                    #read file with transition probabilities
+                    # read file with transition probabilities, order of values: minus, plus
                     transitions = read_file(file)
                     # get data from hmm
                     sequence, real_states = calc_hidden_markov_model(matrix1, matrix2, transitions)
@@ -22,12 +24,13 @@ def menu():
                     viterbi_path = calc_viterbi_path(sequence, matrix1, matrix2,
                                                      transitions)
                     print("Sequence: ", sequence)
-                    #print("Real states: ", real_states)
+                    print("Real states: ", real_states)
                     print("Viterbi path:", viterbi_path)
 
                     print("Error rate: ", calc_error_rate(real_states, viterbi_path))
                 else:
-                    print("Der angegebene Pfad konnte nicht gefunden werden. Versuchen sie es erneut")
+                    print(
+                        "Der angegebene Pfad konnte nicht gefunden werden. Versuchen sie es erneut")
             else:
                 print("Der angegebene Pfad konnte nicht gefunden werden. Versuchen Sie es erneut.")
         except FileNotFoundError:
@@ -38,7 +41,7 @@ def read_file(file):
     """
     Reads file with data for 2 matrices.
 
-    :param data: file .txt
+    :param file: file .txt
     :return: two list of list
     """
     probabilities = [[], []]
@@ -71,7 +74,7 @@ def read_file(file):
                     if probabilities[i][0] < probabilities[i][0]:
                         print("The Firsts values must be bigger than the second")
                         break
-                    elif probabilities[i][0]+probabilities[i][1] != 1:
+                    elif probabilities[i][0] + probabilities[i][1] != 1:
                         print("The Transitions must sum up to one")
                         break
                     else:
@@ -88,7 +91,7 @@ def calc_hidden_markov_model(matrix1, matrix2, change2):
     change1 = copy.deepcopy(change2)
     change = change1
     change[1][1] = change1[1][0]
-    change[1][0] = float(1-change1[1][1])
+    change[1][0] = float(1 - change1[1][1])
 
     k = 999
     sequenz = []
@@ -135,9 +138,9 @@ def calc_hidden_markov_model(matrix1, matrix2, change2):
         if switch == change[0][0] or switch == change[1][0]:
             end = random.random()
         elif switch == change[0][1]:
-            end = random.uniform(0.0, (change[0][1]*0.25)*4)
+            end = random.uniform(0.0, (change[0][1] * 0.25) * 4)
         else:
-            end = random.uniform(0.0, (change[1][1]*0.25)*4)
+            end = random.uniform(0.0, (change[1][1] * 0.25) * 4)
         state.append(symbol[steady])
         if steady == 1:
             for i in range(1, len(model1[
