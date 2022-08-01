@@ -82,7 +82,6 @@ def read_file(file):
                         probabilities[0].append(text_without_line_break[0][i])
                     else:
                         probabilities[1].append(text_without_line_break[0][i])
-                print(probabilities)
                 for i in range(len(probabilities)):
                     if probabilities[i][0] < probabilities[i][0]:
                         print("The Firsts values must be bigger than the second")
@@ -148,17 +147,17 @@ def calc_hidden_markov_model(matrix1, matrix2,change):
         else:
             if random.random() > change[1][0]:
                 steady = 1
-                switch = change[0][1]
+                switch = change[1][1]
             else:
                 steady = 2
-                switch = change[0][0]
+                switch = change[1][0]
         add = 0
         if switch == change[0][0] or switch == change[1][0]:
             end = random.random()
         elif switch == change[0][1]:
-            end = random.uniform(0.0, change[0][1]*4)
+            end = random.uniform(0.0, (change[0][1]*0.25)*4)
         else:
-            end = random.uniform(0.0, change[1][1]*4)
+            end = random.uniform(0.0, (change[1][1]*0.25)*4)
         state.append(symbol[steady])
         if steady == 1:
             for i in range(1, len(model1[
@@ -182,6 +181,7 @@ def calc_hidden_markov_model(matrix1, matrix2,change):
                     start = i
                     break
         k -= 1
+
     s = "".join(sequenz)
     st = "".join(state)
     return s, st
