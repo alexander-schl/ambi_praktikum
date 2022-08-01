@@ -71,10 +71,7 @@ def read_file(file):
                     else:
                         probabilities[1].append(text_without_line_break[0][i])
                 for i in range(len(probabilities)):
-                    if probabilities[i][0] < probabilities[i][0]:
-                        print("The Firsts values must be bigger than the second")
-                        break
-                    elif probabilities[i][0] + probabilities[i][1] != 1:
+                    if probabilities[i][0] + probabilities[i][1] != 1:
                         print("The Transitions must sum up to one")
                         break
                     else:
